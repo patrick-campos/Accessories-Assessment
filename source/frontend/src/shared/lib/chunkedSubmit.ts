@@ -4,12 +4,30 @@ type ChunkedSubmitArgs<T> = {
   endpoint: string;
   checkpointKey: string;
   toPayload: (chunk: T[], chunkIndex: number) => unknown;
+  postAdapter: PostAdapter;
 };
 
 type ChunkedSubmitResult = {
   completedChunks: number;
   totalChunks: number;
 };
+
+type RestPostClient = {
+  post: (path: string, payload?: unknown) => Promise<unknown>;
+};
+
+export type PostAdapter = {
+  post: (endpoint: string, payload: unknown) => Promise<void>;
+};
+
+export function createRestClientPostAdapter(client: RestPostClient): PostAdapter {
+  return {
+    async post(endpoint: string, payload: unknown) {
+      const url = new URL(endpoint);
+      await client.post(url.pathname + url.search, payload);
+    },
+  };
+}
 
 function getStoredCheckpoint(checkpointKey: string) {
   if (typeof window === "undefined") return 0;
@@ -32,16 +50,8 @@ function getChunk<T>(items: T[], chunkSize: number, chunkIndex: number) {
   return items.slice(start, start + chunkSize);
 }
 
-async function postChunk(endpoint: string, payload: unknown) {
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    throw new Error("Chunk submit failed");
-  }
+async function postChunk(endpoint: string, payload: unknown, adapter: PostAdapter) {
+  await adapter.post(endpoint, payload);
 }
 
 export async function submitInChunks<T>({
@@ -50,13 +60,14 @@ export async function submitInChunks<T>({
   endpoint,
   checkpointKey,
   toPayload,
+  postAdapter,
 }: ChunkedSubmitArgs<T>): Promise<ChunkedSubmitResult> {
   const totalChunks = Math.ceil(items.length / chunkSize);
   const startIndex = getStoredCheckpoint(checkpointKey);
 
   for (let chunkIndex = startIndex; chunkIndex < totalChunks; chunkIndex += 1) {
     const chunk = getChunk(items, chunkSize, chunkIndex);
-    await postChunk(endpoint, toPayload(chunk, chunkIndex));
+    await postChunk(endpoint, toPayload(chunk, chunkIndex), postAdapter);
     saveCheckpoint(checkpointKey, chunkIndex + 1);
   }
 

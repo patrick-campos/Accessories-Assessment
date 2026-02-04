@@ -1,0 +1,21 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --color-border: #6e6e6e;
+  --font-display: "Fraunces", serif;
+  --font-body: "Work Sans", system-ui, sans-serif;
+}
+
+body {
+  @apply bg-white text-ink antialiased;
+  font-family: var(--font-body);
+}
+
+a {
+  @apply text-ink underline underline-offset-4;
+}

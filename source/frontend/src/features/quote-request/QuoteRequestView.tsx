@@ -89,7 +89,7 @@ export function QuoteRequestView({
     <div className="min-h-screen bg-white text-ink">
       <MasterHeader />
 
-      <main className="w-full px-[5%] py-10 xl:w-[144rem]">
+      <main className="w-full px-[5%] py-10">
         <div className="flex flex-col gap-3">
           <Stepper steps={schema.steps.map((item) => item.headerTitle)} currentIndex={currentStep} />
           {step?.headerNote ? <p className="text-sm text-clay">{step.headerNote}</p> : null}

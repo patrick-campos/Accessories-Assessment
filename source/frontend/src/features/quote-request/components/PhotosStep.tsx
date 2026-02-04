@@ -63,7 +63,7 @@ export function PhotosStep({
         <p className="text-sm font-semibold text-ink">Additional photos</p>
         <p className="text-xs text-clay">
           You'll need to add photos of any wear and damage. Make sure to include any hardware,
-          'made in' tags and serial numbers. You can add up to 16 photos - the more you provide,
+          'made in' tags and serial numbers. You can add up to 16 photos – the more you provide,
           the more accurate your quote.
         </p>
         <label className="flex min-h-[140px] flex-col items-center justify-center rounded-3xl border-2 border-dashed border-dune bg-mist px-6 text-center text-xs text-clay">
@@ -94,11 +94,9 @@ export function PhotosStep({
         ) : null}
       </div>
 
-      <div className="space-y-2">
-        <p className="text-xs font-semibold text-ink">Important information</p>
+      <div className="p-0">
         <p className="text-xs text-clay">
-          We may be unable to accept your bag if the photos you provide don’t accurately represent
-          it. If this happens, we'll return the bag to your collection address free of charge.
+          Your uploads will appear here once added. Make sure all four required angles are included.
         </p>
       </div>
     </div>

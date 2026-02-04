@@ -5,19 +5,16 @@ type AuxiliarySectionsProps = {
 };
 
 export function AuxiliarySections({ step }: AuxiliarySectionsProps) {
-  const titledSections = step?.auxSections?.filter((section) => section.title) ?? [];
-  const untitledSections = step?.auxSections?.filter((section) => !section.title) ?? [];
-
   return (
     <div className="space-y-6">
       <div className="space-y-6 lg:hidden">
-        {titledSections.map((section, index) => (
+        {step?.auxSections?.map((section, index) => (
           <details
             key={`${section.title ?? "section"}-${index}`}
             className="border-b border-[color:var(--color-border)] pb-3"
           >
             <summary className="cursor-pointer text-sm font-semibold text-ink">
-              {section.title}
+              {section.title ?? "More information"}
             </summary>
             <div className="mt-3">
               {Array.isArray(section.body) ? (
@@ -31,11 +28,6 @@ export function AuxiliarySections({ step }: AuxiliarySectionsProps) {
               )}
             </div>
           </details>
-        ))}
-        {untitledSections.map((section, index) => (
-          <p key={`untitled-${index}`} className="text-sm text-clay">
-            {Array.isArray(section.body) ? section.body.join(", ") : section.body}
-          </p>
         ))}
       </div>
 
@@ -58,13 +50,18 @@ export function AuxiliarySections({ step }: AuxiliarySectionsProps) {
         ))}
       </div>
 
-      <div className="bg-transparent p-0">
-        <p className="text-sm font-semibold text-ink">Need help?</p>
-        <div className="mt-3 flex flex-col gap-2 text-sm text-ink">
-          <a href="#">Visit out FAQs</a>
-          <a href="#">Contact our global Customer Service team</a>
+      {step?.footerHelp ? (
+        <div className="bg-transparent p-0">
+          <p className="text-sm font-semibold text-ink">{step.footerHelp.title}</p>
+          <div className="mt-3 flex flex-col gap-2 text-sm text-ink">
+            {step.footerHelp.links.map((link) => (
+              <a key={link.label} href={link.href}>
+                {link.label}
+              </a>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }

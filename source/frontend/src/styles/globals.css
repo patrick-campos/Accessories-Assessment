@@ -9,6 +9,10 @@
   --font-body: "Work Sans", system-ui, sans-serif;
 }
 
+html {
+  font-size: 10px;
+}
+
 body {
   @apply bg-white text-ink antialiased;
   font-family: var(--font-body);

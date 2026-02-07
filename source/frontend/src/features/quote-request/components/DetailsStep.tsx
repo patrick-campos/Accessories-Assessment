@@ -2,6 +2,9 @@ import type { ItemDetails } from "../QuoteRequestController";
 import type { FormSchema } from "../schema";
 import { Input, SelectSearchable, Textarea } from "@/shared/ui";
 import { cn } from "@/shared/lib/cn";
+import { ContainerStep } from "./ContainerStep";
+import { TitleText } from "@/shared/ui/Title";
+import { DefaultText } from "@/shared/ui/DefaultText";
 
 type DetailsStepProps = {
   schema: FormSchema;
@@ -15,7 +18,7 @@ export function DetailsStep({ schema, item, showErrors, onUpdateItem }: DetailsS
   const detailsClassName = shouldShowDetails ? "space-y-6" : "hidden";
 
   return (
-    <div className="space-y-6">
+    <>
       <SelectSearchable
         label="Country/region"
         required
@@ -99,6 +102,6 @@ export function DetailsStep({ schema, item, showErrors, onUpdateItem }: DetailsS
           onChange={(event) => onUpdateItem({ additionalInfo: event.target.value })}
         />
       </div>
-    </div>
+    </>
   );
 }

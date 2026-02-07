@@ -1,6 +1,6 @@
 import type { ItemDetails } from "./QuoteRequestController";
 import type { FormSchema } from "./schema";
-import { Button, Stepper } from "@/shared/ui";
+import { Button, MasterHeader, Stepper } from "@/shared/ui";
 import { AuxiliarySections } from "./components/AuxiliarySections";
 import { DetailsStep } from "./components/DetailsStep";
 import { PhotosStep } from "./components/PhotosStep";
@@ -87,23 +87,15 @@ export function QuoteRequestView({
 
   return (
     <div className="min-h-screen bg-white text-ink">
-      <header className="relative border-b border-[color:var(--color-border)]">
-        <div className="relative z-10 flex items-center justify-between px-[96px] py-6">
-          <div className="text-lg font-semibold text-ink">FARFETCH SECOND LIFE</div>
-          <div className="flex items-center gap-6 text-sm">
-            <a href="#">Need help?</a>
-            <a href="#">See Our FAQs</a>
-          </div>
-        </div>
-      </header>
+      <MasterHeader />
 
-      <main className="w-full px-6 py-10 xl:w-[144rem]">
+      <main className="w-full px-[5%] py-10">
         <div className="flex flex-col gap-3">
           <Stepper steps={schema.steps.map((item) => item.headerTitle)} currentIndex={currentStep} />
           {step?.headerNote ? <p className="text-sm text-clay">{step.headerNote}</p> : null}
         </div>
 
-        <div className="mt-10 flex flex-col gap-10 xl:flex-row xl:items-start">
+        <div className="mt-10 flex flex-col gap-10 xl:flex-row xl:justify-between">
           <section className="w-full space-y-8 bg-transparent p-0 xl:max-w-[67.4rem]">
             <div>
               <h1 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-ink">

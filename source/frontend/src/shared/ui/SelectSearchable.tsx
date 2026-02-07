@@ -41,7 +41,7 @@ function filterOptions(options: SelectOption[], query: string) {
 
 function SelectLabel({ label }: { label?: string }) {
   if (!label) return null;
-  return <label className="mb-2 block font-semibold text-ink">{label}</label>;
+  return <label className="mb-[0.4rem] block text-normal text-secondaryTitle">{label}</label>;
 }
 
 function SelectTrigger({
@@ -64,7 +64,7 @@ function SelectTrigger({
         type="button"
         onClick={onToggle}
         className={cn(
-          "flex h-12 w-full items-center justify-between rounded-2xl border border-dune bg-white px-4 text-left text-base text-ink shadow-sm",
+          "flex h-[4.4rem] w-full items-center justify-between rounded-[0.8rem] border border-dune bg-white pl-[1.4rem] pr-[1.2rem] text-left text-base text-ink shadow-sm",
           error ? "border-rose border-dashed" : ""
         )}
       >

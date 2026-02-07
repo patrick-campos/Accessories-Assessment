@@ -1,15 +1,65 @@
+import { InformationSection } from "@/shared/ui/InformationSection";
 import type { ItemDetails } from "../QuoteRequestController";
+import type { FormSchema } from "../schema";
 import { Input } from "@/shared/ui";
+import { VerticalTableHeader } from "@/shared/ui/VerticalTableHeader";
 
 type ReviewStepProps = {
   items: ItemDetails[];
+  schema: FormSchema;
   user: { firstName: string; lastName: string; email: string };
   showErrors: boolean;
   onUpdateUser: (user: { firstName: string; lastName: string; email: string }) => void;
   onEditItem: (id: string) => void;
 };
 
-export function ReviewStep({ items, user, showErrors, onUpdateUser, onEditItem }: ReviewStepProps) {
+export function ReviewStep({ items, schema, user, showErrors, onUpdateUser, onEditItem }: ReviewStepProps) {
+  const resolveLabel = (options: Array<{ value: string; label: string }>, value: string) =>
+    options.find((option) => option.value === value)?.label ?? value;
+
+  function RenderImages(item: ItemDetails): JSX.Element {
+    
+    return (
+      <div className="grid max-sm:grid-cols-3 sm:grid-cols-5 gap-y-6 gap-x-3">
+         {[...Object.values(item.photos), ...item.additionalPhotos].map((photo, index) => (
+            <div className="flex justify-center w-full h-full">
+              <img className="w-[10rem] h-[10rem]" src={`${photo}`}/>
+            </div>
+        ))}
+      </div>
+    )
+  }
+
+  function TransformItemToRecord(item:ItemDetails):Record<string, string>{
+    return {
+      Category: resolveLabel(schema.options.categories, item.category),
+      Brand: resolveLabel(schema.options.brands, item.brand),
+      Model: item.model,
+      Size: resolveLabel(schema.options.sizes, item.size),
+      Codition: resolveLabel(schema.options.conditions, item.condition),
+      "Additional Information": item.additionalInfo,
+    };
+  }
+
+  return (
+    <section className="[&>*:not(:last-child)]:border-b">
+      {items.map((item) => {
+        return (
+          <div>
+            <InformationSection Title={'Your item details'} Item={TransformItemToRecord(item)} />
+            <div className="pb-[5.8rem] border-default">
+              <VerticalTableHeader className="mt-[4.8rem] pb-[1rem]" Title="Attached photos" />
+              {RenderImages(item)}
+            </div>
+          </div>
+        )
+      })}
+
+    </section>
+  )
+
+
+
   return (
     <div className="space-y-6">
       <div className="space-y-4 p-0">

@@ -1,5 +1,10 @@
+import { TitleText } from "@/shared/ui/Title";
+import * as React from "react";
 import type { ItemDetails } from "../QuoteRequestController";
 import { cn } from "@/shared/lib/cn";
+import { DefaultText } from "@/shared/ui/DefaultText";
+import { IMGSelector } from "../../../shared/ui/ImgSelector";
+import { DynamicImagesSelect } from "@/shared/ui/DynamicImagesSelector";
 
 type PhotosStepProps = {
   item: ItemDetails;
@@ -28,28 +33,70 @@ function PhotoSlotCard({
   onSelect: (file: File | null) => void;
 }) {
   const cardClasses = cn(
-    "flex min-h-[180px] flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed px-4 py-6 text-center text-xs text-clay",
-    preview ? "border-ink bg-mist" : "border-dune bg-white",
+    "flex h-[15.5rem] w-[15.5rem] flex-col items-center justify-center gap-3 rounded-[0.8rem] border-[0.1rem] border-dashed px-4 py-6 text-center text-xs text-clay max-sm:",
+    preview ? "border-ink bg-white" : "border-default bg-white mb-[0.6rem] cursor-pointer",
     isMissing ? "border-rose" : ""
   );
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+
+  function handleRemove(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    onSelect(null);
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }
   return (
-    <label className={cardClasses}>
-      {preview ? (
-        <img src={preview} alt={label} className="h-32 w-full rounded-2xl object-cover" />
-      ) : (
-        <span>Click to upload</span>
-      )}
-      <span className="font-semibold text-ink">{label}</span>
-      <input
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(event) => onSelect(event.target.files?.[0] ?? null)}
-      />
-      <RequiredHint isMissing={isMissing} />
-    </label>
+    <div className="max-lg:flex max-lg:justify-center">
+      <IMGSelector Label={label} OnSelect={onSelect} RemoveAction={handleRemove} IMGRef={preview} IsMissing={isMissing}/>
+     </div>
   );
 }
+
+/*
+
+ <div className="relative">
+        {preview ? (
+          <div className={cardClasses}>
+            <img src={preview} alt={label} className="h-full w-full rounded-2xl object-cover" />
+            <RequiredHint isMissing={isMissing} />
+          </div>
+        ) : (
+          <label className={cardClasses}>
+            <span>Click to upload</span>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              ref={inputRef}
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (!file) return;
+                onSelect(file);
+              }}
+            />
+            <RequiredHint isMissing={isMissing} />
+          </label>
+        )}
+        {preview ? (
+          <button
+            type="button"
+            className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink/70 text-mist"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              handleRemove(event);
+            }}
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+              <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8zM7 10h2v8H7v-8z" />
+            </svg>
+          </button>
+        ) : null}
+      </div>
+      <span className="text-normal text-[1.1rem]">{label}</span>
+    </div>
+  */
 
 function PhotoSlotsGrid({
   item,
@@ -61,7 +108,7 @@ function PhotoSlotsGrid({
   onUpdatePhoto: PhotosStepProps["onUpdatePhoto"];
 }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-4 max-sm:grid-cols-2 lg:grid-cols-4 max-lg:grid-cols-3">
       {photoLabels.map((label) => {
         const slot = label.toLowerCase() as "front" | "back" | "bottom" | "interior";
         const preview = item.photos[slot];
@@ -116,15 +163,31 @@ export function PhotosStep({
   return (
     <div className="space-y-8">
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-ink">Photos of your item</p>
-        <p className="text-xs text-clay">
-          Please submit at least 4 photos of your item. Click one of photos below to upload your
-          own. You can drag the photos to change their order or click to delete them.
-        </p>
+        <TitleText className="font-normal text-heading">Photos of your item</TitleText>
+        <DefaultText className="mt-[1.2rem] text-secondaryTitle">Please submit at least 4 photos of your item. Click one of photos below to upload your
+          own. You can drag the photos to change their order or click to delete them.</DefaultText>
         <PhotoSlotsGrid item={item} showErrors={showErrors} onUpdatePhoto={onUpdatePhoto} />
       </div>
 
       <div className="space-y-3">
+        <TitleText className="font-normal text-heading">Additional photos</TitleText>
+        <DefaultText className="mt-[1.2rem] text-secondaryTitle">You'll need to add photos of any wear and damage. Make sure to include any hardware,
+          'made in' tags and serial numbers. You can add up to 16 photos â€“ the more you provide,
+          the more accurate your quote.</DefaultText>
+        <DynamicImagesSelect />
+      </div>
+
+      <div className="pt-8">
+        <TitleText className="font-normal text-secondaryTitle font-bold">Important information</TitleText>
+        <DefaultText className="text-secondaryTitle">We may be unable to accept your bag if the photos you provide don’t accurately represent it. If this happens, we'll return the bag to your collection address free of charge.</DefaultText>
+      </div>
+    </div>
+  );
+}
+
+/*
+
+<div className="space-y-3">
         <p className="text-sm font-semibold text-ink">Additional photos</p>
         <p className="text-xs text-clay">
           You'll need to add photos of any wear and damage. Make sure to include any hardware,
@@ -143,12 +206,4 @@ export function PhotosStep({
         </label>
         <AdditionalPhotoGrid photos={item.additionalPhotos} onRemove={onRemoveAdditionalPhoto} />
       </div>
-
-      <div className="p-0">
-        <p className="text-xs text-clay">
-          Your uploads will appear here once added. Make sure all four required angles are included.
-        </p>
-      </div>
-    </div>
-  );
-}
+  */

@@ -10,8 +10,8 @@ export function MasterHeader({
   right = "See Our FAQs",
 }: MasterHeaderProps) {
   return (
-    <header className="relative border-b border-[color:var(--color-border)]">
-      <div className="relative z-10 flex items-center justify-between px-[5%] py-6 xl:px-[96px]">
+    <header className="w-full border-b border-[color:var(--color-border)]">
+      <div className="flex w-full min-w-0 items-center justify-between px-[5%] py-[36px] box-border">
         <div className="text-lg font-semibold text-ink">{title}</div>
         <div className="flex items-center gap-6 text-sm">
           <a href="#">{left}</a>

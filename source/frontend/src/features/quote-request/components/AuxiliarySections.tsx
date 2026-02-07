@@ -1,4 +1,6 @@
+import { DefaultText } from "@/shared/ui/DefaultText";
 import type { StepSchema } from "../schema";
+import { TitleText } from "@/shared/ui/Title";
 
 type AuxiliarySectionsProps = {
   step?: StepSchema;
@@ -12,20 +14,20 @@ function SectionTitle({ title }: { title?: string }) {
 function SectionBody({ body }: { body: string | string[] }) {
   if (Array.isArray(body)) {
     return (
-      <ul className="list-disc space-y-2 pl-5 text-sm text-clay">
+      <ul className="list-disc space-y-2 pl-5 text-sm text-clay ">
         {body.map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>
     );
   }
-  return <p className="text-sm text-clay">{body}</p>;
+  return <DefaultText className="text-default mt-0 text-secondaryTitle">{body}</DefaultText>
 }
 
 function AuxiliarySection({ title, body }: { title?: string; body: string | string[] }) {
   return (
-    <div className="space-y-3">
-      <SectionTitle title={title} />
+    <div>
+      <TitleText as='h3' className="font-bold text-secondaryTitle pb-[0.4rem] mb-0 max-lg:font-normal lg:font-bold">{title}</TitleText>
       <SectionBody body={body} />
     </div>
   );
@@ -34,9 +36,9 @@ function AuxiliarySection({ title, body }: { title?: string; body: string | stri
 function MobileSection({ title, body }: { title?: string; body: string | string[] }) {
   const summary = title ?? "More information";
   return (
-    <details className="border-b border-[color:var(--color-border)] pb-3">
-      <summary className="cursor-pointer text-sm font-semibold text-ink">{summary}</summary>
-      <div className="mt-3">
+    <details className="border-b border-borderdefault pb-3">
+      <summary className="cursor-pointer text-normal uppercase max-lg:text-secondaryTitle">{summary}</summary>
+      <div className="mt-[1.75rem] mb-[1rem]">
         <SectionBody body={body} />
       </div>
     </details>
@@ -64,13 +66,13 @@ export function AuxiliarySections({ step }: AuxiliarySectionsProps) {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-6 lg:hidden">
+      <div className="space-y-6 xl:hidden">
         {sections.map((section, index) => (
           <MobileSection key={`${section.title ?? "section"}-${index}`} {...section} />
         ))}
       </div>
 
-      <div className="hidden space-y-6 lg:block">
+      <div className="hidden space-y-6 xl:block">
         {sections.map((section, index) => (
           <AuxiliarySection key={`${section.title ?? "section"}-${index}`} {...section} />
         ))}

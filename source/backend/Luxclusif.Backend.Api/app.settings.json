@@ -1,0 +1,17 @@
+{
+  "ConnectionStrings": {
+    "Postgres": "Host=localhost;Port=5432;Database=luxclusif;Username=postgres;Password=postgres"
+  },
+  "GoogleDrive": {
+    "Provider": "GoogleDrive",
+    "UploadRoot": "Uploads"
+  },
+  "GoogleSheet": {
+    "OutputPath": "Sheets/quotes.csv"
+  },
+  "Cors": {
+    "AllowedOrigins": [
+      "http://localhost:3000"
+    ]
+  }
+}

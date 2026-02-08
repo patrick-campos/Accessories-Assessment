@@ -51,6 +51,7 @@ export function DetailsStep({ schema, item, showErrors, onUpdateItem }: DetailsS
           label="Model"
           placeholder="Enter model"
           value={item.model}
+          error={showErrors && !item.model ? "Required" : undefined}
           onChange={(event) => onUpdateItem({ model: event.target.value })}
         />
         <SelectSearchable

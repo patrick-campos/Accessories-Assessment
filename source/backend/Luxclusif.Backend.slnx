@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Luxclusif.Backend.Api/Luxclusif.Backend.Api.csproj" />
+  <Project Path="Luxclusif.Backend.Application/Luxclusif.Backend.Application.csproj" />
+  <Project Path="Luxclusif.Backend.Domain/Luxclusif.Backend.Domain.csproj" />
+  <Project Path="Luxclusif.Backend.Infrastructure/Luxclusif.Backend.Infrastructure.csproj" />
+  <Project Path="Luxclusif.Backend.Tests/Luxclusif.Backend.Tests.csproj" />
+</Solution>

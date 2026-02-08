@@ -2,7 +2,7 @@ import { cn } from "@/shared/lib/cn";
 import { cva, VariantProps } from "class-variance-authority";
 
 const DefaultTextVariants = cva(
-    "leading-[1.375rem]", 
+    "leading-normal", 
     {
     variants: {
         variant: {

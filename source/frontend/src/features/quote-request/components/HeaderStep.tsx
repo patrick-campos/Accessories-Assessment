@@ -11,7 +11,7 @@ export function HeaderStep(props:HeaderStepProps): JSX.Element{
         return <header></header>
 
     return (
-        <header className="flex flex-col gap-3 w-full pt-[3.6rem] px-[96px] max-sm:px-[2%] max-sm:overflow-x-hidden max-sm:px-[2%] mb-[4.8rem]">
+        <header className="flex flex-col gap-3 w-full pt-md px-[96px] max-sm:px-[2%] max-sm:overflow-x-hidden max-sm:px-[2%] mb-lg">
             <Stepper steps={props.Items} currentIndex={props.CurrentIndexOfActiveItem}/>
         </header>
     )

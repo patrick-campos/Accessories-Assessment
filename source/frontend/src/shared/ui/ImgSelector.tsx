@@ -7,12 +7,12 @@ type IMGSelectorProps = React.ComponentProps<"div"> & {
     IsMissing?: boolean;
     Label?:string;
     IMGRef?: string | null; 
-    RemoveAction?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    RemoveAction?: (event?: React.MouseEvent<HTMLButtonElement>) => void;
     OnSelect?: (file: File | null) => void;
     MiddleLabel?:string;
 }
 
-export function IMGSelector({ IsMissing, Label, MiddleLabel, IMGRef, OnSelect, RemoveAction, ...props }: IMGSelectorProps): JSX.Element {
+export function IMGSelector({ IsMissing, Label, MiddleLabel, className, IMGRef, OnSelect, RemoveAction, ...props }: IMGSelectorProps): JSX.Element {
 
     const transitionClasses = IsMissing ? 'border-rose' : '';
 
@@ -23,11 +23,11 @@ export function IMGSelector({ IsMissing, Label, MiddleLabel, IMGRef, OnSelect, R
             return <></>
 
         return (
-            <div className="relative">
+            <div className="relative w-full h-full">
                 <Button className="absolute right-0 px-[1rem]" variant={"icon"} onClick={removFunction}>
                     <Trash2 className="h-[1.5rem] w-[1.5rem]"/>
                 </Button>
-                <img src={ref}/>
+                <img src={ref} className="h-full w-full rounded-sm"/>
             </div>
         )
     }
@@ -48,7 +48,6 @@ export function IMGSelector({ IsMissing, Label, MiddleLabel, IMGRef, OnSelect, R
                     const file = event.target.files?.[0];
                     if (!file) 
                         return;
-                    console.log("entrou aqui")
                     if(onSelect)
                         onSelect(file);
                 }}
@@ -89,8 +88,8 @@ export function IMGSelector({ IsMissing, Label, MiddleLabel, IMGRef, OnSelect, R
     }
 
     return (
-        <div>
-            <div {...props} className={cn("flex h-[15.5rem] w-[15.5rem] flex-col items-center justify-center gap-3 border-default rounded-[0.8rem] border-[0.1rem] border-dashed cursor-pointer", transitionClasses)}>
+        <div className="h-full m-auto">
+            <div {...props} className={cn("flex h-[15.5rem] w-[15.5rem] flex-col items-center justify-center gap-3 border-default rounded-sm border-[0.1rem] border-dashed cursor-pointer", className ,transitionClasses)}>
                 {RenderFieldContent(IMGRef, MiddleLabel ,OnSelect, RemoveAction)}
             </div>
             {RenderPreviewFooter(Label, IsMissing)}

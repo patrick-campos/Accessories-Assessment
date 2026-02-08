@@ -1,14 +1,10 @@
-import Head from "next/head";
-import { QuoteRequestController } from "@/features/quote-request/QuoteRequestController";
+import { HomeView } from "@/features/home/HomeView";
+import { PageShell } from "@/shared/ui/PageShell";
 
 export default function HomePage() {
   return (
-    <>
-      <Head>
-        <title>Luxclusif - Request Quote</title>
-        <meta name="description" content="Request a quote for your luxury items." />
-      </Head>
-      <QuoteRequestController />
-    </>
+    <PageShell title="Luxclusif - Home" description="Luxclusif home.">
+      <HomeView />
+    </PageShell>
   );
 }

@@ -12,6 +12,19 @@ const nextConfig = {
   reactStrictMode: true,
   async headers() {
     const scriptSrc = isDev ? "script-src 'self' 'unsafe-eval'" : "script-src 'self'";
+    const imgSrc = [
+      "'self'",
+      "data:",
+      "blob:",
+      "https://*.google.com",
+      "https://*.googleusercontent.com",
+      "https://drive.usercontent.google.com",
+      "https://drive.google.com",
+      "https://lh3.googleusercontent.com",
+    ];
+    if (apiOrigin) {
+      imgSrc.push(apiOrigin);
+    }
     return [
       {
         source: "/(.*)",
@@ -19,7 +32,7 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              `default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; ${scriptSrc}; connect-src ${connectSrc.join(" ")}; frame-ancestors 'none'; base-uri 'self'`,
+              `default-src 'self'; img-src ${imgSrc.join(" ")}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; ${scriptSrc}; connect-src ${connectSrc.join(" ")}; frame-ancestors 'none'; base-uri 'self'`,
           },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },

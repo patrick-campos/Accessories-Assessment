@@ -133,8 +133,8 @@ export function QuoteRequestView({
       {successModal}
       <ContentContainer>
         <HeaderStep Items={schema.steps.map((item) => item.headerTitle)} CurrentIndexOfActiveItem={currentStep} />
-        <TwoGridContainer className="xl:w-[144rem] lg:m-auto">
-          <ContainerStep className="space-y-6">
+        <TwoGridContainer className="w-full 2xl:w-[144rem] max-xl:m-auto">
+          <ContainerStep className="space-y-6 lg:w-[50%]">
             <div className="mb-lg">
               <TitleText className="font-normal text-title">{step?.inputTitle}</TitleText>
               <DefaultText className="mt-[1.2rem] text-subtitle">{step.inputSubtitle}</DefaultText>
@@ -145,7 +145,7 @@ export function QuoteRequestView({
               <ButtonStep shouldRender={shouldShowNext}  onClick={onNext} disabled={submitState === "sending" || isUploading} className="rounded-round px-[5.8rem] min-w-[4.4rem] max-sm:w-full">{isLast ? 'Request Quote':'Next'}</ButtonStep>
             </div>
           </ContainerStep>
-          <aside className="w-full bg-transparent max-xl:py-lg xl:w-[35.3rem] min-[1440px]:w-[39.3rem] max-lg:my-lg">
+          <aside className="w-full bg-transparent max-xl:py-lg lg:w-[35.3rem] min-[1440px]:w-[39.3rem] max-lg:my-lg">
             <AuxiliarySections step={step} />
           </aside>
         </TwoGridContainer>

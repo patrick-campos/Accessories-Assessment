@@ -47,9 +47,7 @@ public sealed class GoogleDriveFileStorageService : IFileStorageService
 
         await EnsurePublicReadAsync(uploaded.Id, cancellationToken);
 
-        var fileInfo = await GetFileInfoAsync(uploaded.Id, cancellationToken);
-        var location = ResolvePublicLocation(uploaded.Id, fileInfo);
-
+        var location = BuildThumbnailUrl(uploaded.Id);
         return new FileStorageResult(_options.Provider, uploaded.Id, location);
     }
 
@@ -75,30 +73,9 @@ public sealed class GoogleDriveFileStorageService : IFileStorageService
         await request.ExecuteAsync(cancellationToken);
     }
 
-    private async Task<Google.Apis.Drive.v3.Data.File?> GetFileInfoAsync(string fileId, CancellationToken cancellationToken)
+    private static string BuildThumbnailUrl(string fileId)
     {
-        var request = _driveService.Files.Get(fileId);
-        request.Fields = "id, webViewLink, webContentLink";
-        request.SupportsAllDrives = true;
-        return await request.ExecuteAsync(cancellationToken);
-    }
-
-    private static string ResolvePublicLocation(string fileId, Google.Apis.Drive.v3.Data.File? fileInfo)
-    {
-        if (fileInfo is not null)
-        {
-            if (!string.IsNullOrWhiteSpace(fileInfo.WebContentLink))
-            {
-                return fileInfo.WebContentLink;
-            }
-
-            if (!string.IsNullOrWhiteSpace(fileInfo.WebViewLink))
-            {
-                return fileInfo.WebViewLink;
-            }
-        }
-
-        return $"https://drive.usercontent.google.com/download?id={fileId}&export=view";
+        return $"https://drive.google.com/thumbnail?id={fileId}&sz=w1000";
     }
 
     private static DriveService CreateDriveService(GoogleDriveOptions options)

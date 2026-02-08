@@ -392,66 +392,15 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
     {
         if (!string.IsNullOrWhiteSpace(file.Location))
         {
-            return NormalizeDriveLocation(file.Location) ?? file.Location;
-        }
-
-        var externalId = !string.IsNullOrWhiteSpace(file.ExternalId) ? file.ExternalId : file.UploadExternalId;
-        if (!string.IsNullOrWhiteSpace(externalId))
-        {
-            return $"https://drive.google.com/thumbnail?id={externalId}&sz=w1000";
+            return file.Location;
         }
 
         if (!string.IsNullOrWhiteSpace(file.UploadLocation))
         {
-            return NormalizeDriveLocation(file.UploadLocation) ?? file.UploadLocation;
+            return file.UploadLocation;
         }
 
         return string.Empty;
-    }
-
-    private static string? NormalizeDriveLocation(string location)
-    {
-        if (!location.Contains("drive.google.com", StringComparison.OrdinalIgnoreCase))
-        {
-            return null;
-        }
-
-        if (!TryExtractDriveId(location, out var id))
-        {
-            return null;
-        }
-
-        return $"https://drive.google.com/thumbnail?id={id}&sz=w1000";
-    }
-
-    private static bool TryExtractDriveId(string location, out string id)
-    {
-        id = string.Empty;
-        try
-        {
-            var uri = new Uri(location);
-            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-            var idParam = query.Get("id");
-            if (!string.IsNullOrWhiteSpace(idParam))
-            {
-                id = idParam;
-                return true;
-            }
-
-            var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            var fileIndex = Array.FindIndex(segments, segment => segment.Equals("d", StringComparison.OrdinalIgnoreCase));
-            if (fileIndex >= 0 && fileIndex + 1 < segments.Length)
-            {
-                id = segments[fileIndex + 1];
-                return true;
-            }
-        }
-        catch
-        {
-            return false;
-        }
-
-        return false;
     }
 
     private sealed record ItemFileRow(

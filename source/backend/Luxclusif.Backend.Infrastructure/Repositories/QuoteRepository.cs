@@ -123,135 +123,18 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
         var (connection, transaction, shouldDispose) = await GetSessionAsync(_connectionFactory, cancellationToken);
         try
         {
-            var totalItems = await connection.ExecuteScalarAsync<int>(
-                QuoteQueryCommands.CountQuotes,
-                transaction: transaction);
-
-            var offset = (page - 1) * pageSize;
-            var quotes = (await connection.QueryAsync<QuoteRow>(
-                QuoteQueryCommands.SelectQuotesPage,
-                new { Offset = offset, Limit = pageSize },
-                transaction)).ToList();
+            var totalItems = await GetTotalQuotesAsync(connection, transaction);
+            var quotes = await GetQuotesPageAsync(connection, transaction, page, pageSize);
 
             if (quotes.Count == 0)
             {
                 return new PagedQuoteList(totalItems, Array.Empty<QuoteListItemDto>());
             }
 
-            var quoteIds = quotes.Select(quote => quote.Id).ToArray();
-
-            var multi = await connection.QueryMultipleAsync(
-                QuoteQueryCommands.SelectQuoteDetails,
-                new { QuoteIds = quoteIds },
-                transaction);
-
-            var customers = (await multi.ReadAsync<CustomerRow>()).ToList();
-            var items = (await multi.ReadAsync<ItemRow>()).ToList();
-            var itemAttributes = (await multi.ReadAsync<ItemAttributeRow>()).ToList();
-            var attributeValues = (await multi.ReadAsync<ItemAttributeValueRow>()).ToList();
-            var files = (await multi.ReadAsync<ItemFileRow>()).ToList();
-            var categories = (await multi.ReadAsync<LookupRow>()).ToList();
-            var brands = (await multi.ReadAsync<LookupRow>()).ToList();
-
-            var categoryLookup = categories.ToDictionary(entry => entry.Id, entry => entry.Name);
-            var brandLookup = brands.ToDictionary(entry => entry.Id, entry => entry.Name);
-            var customerLookup = customers.ToDictionary(entry => entry.QuoteId);
-            var quoteLookup = quotes.ToDictionary(quote => quote.Id);
-
-            var attributeValueLookup = attributeValues
-                .GroupBy(value => value.ItemAttributeId)
-                .ToDictionary(group => group.Key, group => group
-                    .Select(value => new QuoteListAttributeValueDto(value.ValueId.ToString(), value.Label))
-                    .ToList());
-
-            var attributeLookup = itemAttributes
-                .GroupBy(attribute => attribute.ItemId)
-                .ToDictionary(group => group.Key, group => group
-                    .Select(attribute => new QuoteListAttributeDto(
-                        attribute.AttributeId.ToString(),
-                        attribute.AttributeName,
-                        attributeValueLookup.TryGetValue(attribute.Id, out var values)
-                            ? values
-                            : new List<QuoteListAttributeValueDto>()))
-                    .ToList());
-
-            var fileLookup = files
-                .GroupBy(file => file.ItemId)
-                .ToDictionary(group => group.Key, group => group
-                    .Select(file => new QuoteListFileDto(
-                        file.Id.ToString(),
-                        file.Location,
-                        new QuoteListFileMetadataDto(file.PhotoType, file.Description ?? string.Empty, file.PhotoSubtype)))
-                    .ToList());
-
-            var itemsByQuote = items
-                .GroupBy(item => item.QuoteId)
-                .ToDictionary(group => group.Key, group => group.Select(item =>
-                {
-                    var attributes = attributeLookup.TryGetValue(item.Id, out var itemAttributesList)
-                        ? itemAttributesList
-                        : new List<QuoteListAttributeDto>();
-                    var fileItems = fileLookup.TryGetValue(item.Id, out var itemFiles)
-                        ? itemFiles
-                        : new List<QuoteListFileDto>();
-                    var categoryName = categoryLookup.TryGetValue(item.CategoryId, out var name) ? name : string.Empty;
-                    var brandName = brandLookup.TryGetValue(item.BrandId, out var brand) ? brand : string.Empty;
-
-                    var itemCreatedAt = quoteLookup[item.QuoteId].CreatedAt;
-                    var itemCreatedAtOffset = new DateTimeOffset(DateTime.SpecifyKind(itemCreatedAt, DateTimeKind.Utc));
-
-                    return new QuoteListItemDetailDto(
-                        SubmissionId: item.QuoteId.ToString(),
-                        Id: item.Id.ToString(),
-                        CreatedAt: itemCreatedAtOffset,
-                        LastUpdatedAt: null,
-                        ExternalId: item.Id.ToString(),
-                        Status: "Created",
-                        Category: new QuoteLookupDto(item.CategoryId.ToString(), categoryName),
-                        Brand: new QuoteLookupDto(item.BrandId.ToString(), brandName),
-                        Model: item.Model,
-                        Description: item.Description ?? string.Empty,
-                        Attributes: attributes,
-                        Files: fileItems,
-                        RejectionReasons: null,
-                        CancellationReasons: null,
-                        Offers: Array.Empty<object>(),
-                        Price: null,
-                        RejectedAt: null,
-                        CanceledAt: null,
-                        TimedOutAt: null,
-                        MoreInformationRequestedAt: null,
-                        MoreInformationReceivedAt: null);
-                }).ToList());
-
-            var resultItems = quotes.Select(quote =>
-            {
-                var createdAt = new DateTimeOffset(DateTime.SpecifyKind(quote.CreatedAt, DateTimeKind.Utc));
-                var customer = customerLookup.TryGetValue(quote.Id, out var value)
-                    ? value
-                    : new CustomerRow(Guid.Empty, quote.Id, null, string.Empty, string.Empty, string.Empty);
-
-                return new QuoteListItemDto(
-                    Id: quote.Id.ToString(),
-                    CreatedAt: createdAt,
-                    LastUpdatedAt: null,
-                    Status: "Active",
-                    ExternalId: quote.Id.ToString(),
-                    Reference: BuildReference(quote.Id),
-                    CountryOfOrigin: quote.CountryOfOriginIsoCode,
-                    CurrencyIsoCode: ResolveCurrency(quote.CountryOfOriginIsoCode),
-                    CustomerInformation: new QuoteCustomerInformationDto(
-                        ExternalUserId: null,
-                        ExternalUserNumericId: null,
-                        FirstName: customer.FirstName,
-                        LastName: customer.LastName,
-                        Email: customer.Email,
-                        TelephoneNumber: null,
-                        ExternalSellerTier: customer.ExternalSellerTier,
-                        IsVipCustomer: false),
-                    Seller: new QuoteSellerDto("239ff3d0-ab9a-0c8d-ad28-0a8e152a02f8", "Farfetch"),
-                    Items: itemsByQuote.TryGetValue(quote.Id, out var itemList) ? itemList : new List<QuoteListItemDetailDto>());
-            }).ToList();
+            var details = await GetQuoteDetailsAsync(connection, transaction, quotes);
+            var lookups = BuildLookups(quotes, details);
+            var itemsByQuote = BuildQuoteItems(details, lookups);
+            var resultItems = BuildQuoteDtos(quotes, lookups, itemsByQuote);
 
             return new PagedQuoteList(totalItems, resultItems);
         }
@@ -282,6 +165,192 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
             _ => "USD"
         };
     }
+
+    private static async Task<int> GetTotalQuotesAsync(
+        NpgsqlConnection connection,
+        NpgsqlTransaction? transaction)
+    {
+        return await connection.ExecuteScalarAsync<int>(
+            QuoteQueryCommands.CountQuotes,
+            transaction: transaction);
+    }
+
+    private static async Task<List<QuoteRow>> GetQuotesPageAsync(
+        NpgsqlConnection connection,
+        NpgsqlTransaction? transaction,
+        int page,
+        int pageSize)
+    {
+        var offset = (page - 1) * pageSize;
+        var quotes = await connection.QueryAsync<QuoteRow>(
+            QuoteQueryCommands.SelectQuotesPage,
+            new { Offset = offset, Limit = pageSize },
+            transaction);
+        return quotes.ToList();
+    }
+
+    private static async Task<QuoteDetails> GetQuoteDetailsAsync(
+        NpgsqlConnection connection,
+        NpgsqlTransaction? transaction,
+        IReadOnlyCollection<QuoteRow> quotes)
+    {
+        var quoteIds = quotes.Select(quote => quote.Id).ToArray();
+        var multi = await connection.QueryMultipleAsync(
+            QuoteQueryCommands.SelectQuoteDetails,
+            new { QuoteIds = quoteIds },
+            transaction);
+
+        var customers = (await multi.ReadAsync<CustomerRow>()).ToList();
+        var items = (await multi.ReadAsync<ItemRow>()).ToList();
+        var itemAttributes = (await multi.ReadAsync<ItemAttributeRow>()).ToList();
+        var attributeValues = (await multi.ReadAsync<ItemAttributeValueRow>()).ToList();
+        var files = (await multi.ReadAsync<ItemFileRow>()).ToList();
+        var categories = (await multi.ReadAsync<LookupRow>()).ToList();
+        var brands = (await multi.ReadAsync<LookupRow>()).ToList();
+
+        return new QuoteDetails(customers, items, itemAttributes, attributeValues, files, categories, brands);
+    }
+
+    private static QuoteLookups BuildLookups(
+        IReadOnlyCollection<QuoteRow> quotes,
+        QuoteDetails details)
+    {
+        var categoryLookup = details.Categories.ToDictionary(entry => entry.Id, entry => entry.Name);
+        var brandLookup = details.Brands.ToDictionary(entry => entry.Id, entry => entry.Name);
+        var customerLookup = details.Customers.ToDictionary(entry => entry.QuoteId);
+        var quoteLookup = quotes.ToDictionary(quote => quote.Id);
+
+        var attributeValueLookup = details.AttributeValues
+            .GroupBy(value => value.ItemAttributeId)
+            .ToDictionary(group => group.Key, group => group
+                .Select(value => new QuoteListAttributeValueDto(value.ValueId.ToString(), value.Label))
+                .ToList());
+
+        var attributeLookup = details.ItemAttributes
+            .GroupBy(attribute => attribute.ItemId)
+            .ToDictionary(group => group.Key, group => group
+                .Select(attribute => new QuoteListAttributeDto(
+                    attribute.AttributeId.ToString(),
+                    attribute.AttributeName,
+                    attributeValueLookup.TryGetValue(attribute.Id, out var values)
+                        ? values
+                        : new List<QuoteListAttributeValueDto>()))
+                .ToList());
+
+        var fileLookup = details.Files
+            .GroupBy(file => file.ItemId)
+            .ToDictionary(group => group.Key, group => group
+                .Select(file => new QuoteListFileDto(
+                    file.Id.ToString(),
+                    file.Location,
+                    new QuoteListFileMetadataDto(file.PhotoType, file.Description ?? string.Empty, file.PhotoSubtype)))
+                .ToList());
+
+        return new QuoteLookups(
+            categoryLookup,
+            brandLookup,
+            customerLookup,
+            quoteLookup,
+            attributeLookup,
+            fileLookup);
+    }
+
+    private static Dictionary<Guid, List<QuoteListItemDetailDto>> BuildQuoteItems(
+        QuoteDetails details,
+        QuoteLookups lookups)
+    {
+        return details.Items
+            .GroupBy(item => item.QuoteId)
+            .ToDictionary(group => group.Key, group => group.Select(item =>
+            {
+                var attributes = lookups.AttributeLookup.TryGetValue(item.Id, out var itemAttributesList)
+                    ? itemAttributesList
+                    : new List<QuoteListAttributeDto>();
+                var fileItems = lookups.FileLookup.TryGetValue(item.Id, out var itemFiles)
+                    ? itemFiles
+                    : new List<QuoteListFileDto>();
+                var categoryName = lookups.CategoryLookup.TryGetValue(item.CategoryId, out var name) ? name : string.Empty;
+                var brandName = lookups.BrandLookup.TryGetValue(item.BrandId, out var brand) ? brand : string.Empty;
+
+                var itemCreatedAt = lookups.QuoteLookup[item.QuoteId].CreatedAt;
+                var itemCreatedAtOffset = new DateTimeOffset(DateTime.SpecifyKind(itemCreatedAt, DateTimeKind.Utc));
+
+                return new QuoteListItemDetailDto(
+                    SubmissionId: item.QuoteId.ToString(),
+                    Id: item.Id.ToString(),
+                    CreatedAt: itemCreatedAtOffset,
+                    LastUpdatedAt: null,
+                    ExternalId: item.Id.ToString(),
+                    Status: "Created",
+                    Category: new QuoteLookupDto(item.CategoryId.ToString(), categoryName),
+                    Brand: new QuoteLookupDto(item.BrandId.ToString(), brandName),
+                    Model: item.Model,
+                    Description: item.Description ?? string.Empty,
+                    Attributes: attributes,
+                    Files: fileItems,
+                    RejectionReasons: null,
+                    CancellationReasons: null,
+                    Offers: Array.Empty<object>(),
+                    Price: null,
+                    RejectedAt: null,
+                    CanceledAt: null,
+                    TimedOutAt: null,
+                    MoreInformationRequestedAt: null,
+                    MoreInformationReceivedAt: null);
+            }).ToList());
+    }
+
+    private static List<QuoteListItemDto> BuildQuoteDtos(
+        IReadOnlyCollection<QuoteRow> quotes,
+        QuoteLookups lookups,
+        Dictionary<Guid, List<QuoteListItemDetailDto>> itemsByQuote)
+    {
+        return quotes.Select(quote =>
+        {
+            var createdAt = new DateTimeOffset(DateTime.SpecifyKind(quote.CreatedAt, DateTimeKind.Utc));
+            var customer = lookups.CustomerLookup.TryGetValue(quote.Id, out var value)
+                ? value
+                : new CustomerRow(Guid.Empty, quote.Id, null, string.Empty, string.Empty, string.Empty);
+
+            return new QuoteListItemDto(
+                Id: quote.Id.ToString(),
+                CreatedAt: createdAt,
+                LastUpdatedAt: null,
+                Status: "Active",
+                ExternalId: quote.Id.ToString(),
+                Reference: BuildReference(quote.Id),
+                CountryOfOrigin: quote.CountryOfOriginIsoCode,
+                CurrencyIsoCode: ResolveCurrency(quote.CountryOfOriginIsoCode),
+                CustomerInformation: new QuoteCustomerInformationDto(
+                    ExternalUserId: null,
+                    ExternalUserNumericId: null,
+                    FirstName: customer.FirstName,
+                    LastName: customer.LastName,
+                    Email: customer.Email,
+                    TelephoneNumber: null,
+                    ExternalSellerTier: customer.ExternalSellerTier,
+                    IsVipCustomer: false),
+                Seller: new QuoteSellerDto("239ff3d0-ab9a-0c8d-ad28-0a8e152a02f8", "Farfetch"),
+                Items: itemsByQuote.TryGetValue(quote.Id, out var itemList) ? itemList : new List<QuoteListItemDetailDto>());
+        }).ToList();
+    }
+
+    private sealed record QuoteDetails(
+        IReadOnlyCollection<CustomerRow> Customers,
+        IReadOnlyCollection<ItemRow> Items,
+        IReadOnlyCollection<ItemAttributeRow> ItemAttributes,
+        IReadOnlyCollection<ItemAttributeValueRow> AttributeValues,
+        IReadOnlyCollection<ItemFileRow> Files,
+        IReadOnlyCollection<LookupRow> Categories,
+        IReadOnlyCollection<LookupRow> Brands);
+
+    private sealed record QuoteLookups(
+        IReadOnlyDictionary<Guid, string> CategoryLookup,
+        IReadOnlyDictionary<Guid, string> BrandLookup,
+        IReadOnlyDictionary<Guid, CustomerRow> CustomerLookup,
+        IReadOnlyDictionary<Guid, QuoteRow> QuoteLookup,
+        IReadOnlyDictionary<Guid, List<QuoteListAttributeDto>> AttributeLookup,
+        IReadOnlyDictionary<Guid, List<QuoteListFileDto>> FileLookup);
 
     private sealed record QuoteRow(Guid Id, string CountryOfOriginIsoCode, DateTime CreatedAt);
 

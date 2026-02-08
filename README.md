@@ -23,12 +23,12 @@ Required OAuth scopes:
 
 Generate a refresh token using:
 ```
-.\Accessories-Assessment\scripts\get_google_refresh_token.ps1 -ClientSecretPath "C:\path\client_secret.json"
+.\scripts\get_google_refresh_token.ps1 -ClientSecretPath "C:\path\client_secret.json"
 ```
 
 ## Environment Variables
 Backend **requires** Google variables configured to work correctly.
-Configure in `Accessories-Assessment/docker/backend.env`:
+Configure in `docker/backend.env`:
 ```
 GoogleDrive__ClientId=...
 GoogleDrive__ClientSecret=...
@@ -41,7 +41,7 @@ GoogleSheet__SpreadsheetId=...         # Spreadsheet ID
 GoogleSheet__SheetName=quote           # Sheet tab name
 ```
 
-Frontend variables are only required for production (in `Accessories-Assessment/docker/frontend.env`):
+Frontend variables are only required for production (in `docker/frontend.env`):
 ```
 NEXT_PUBLIC_API_ORIGIN=http://localhost:8080
 NEXT_PUBLIC_REQUEST_QUOTE_URL=http://localhost:8080/quote
@@ -50,7 +50,7 @@ NEXT_PUBLIC_REQUEST_QUOTE_URL=http://localhost:8080/quote
 ## Running with Docker
 From repository root:
 ```
-docker compose -f Accessories-Assessment\docker\docker-compose.yml up -d --build
+docker compose -f docker\docker-compose.yml up -d --build
 ```
 
 Services:

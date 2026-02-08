@@ -2,5 +2,6 @@ namespace Luxclusif.Backend.Infrastructure.Services;
 
 public sealed class GoogleSheetOptions
 {
-    public string OutputPath { get; set; } = "Sheets/quotes.csv";
+    public string SpreadsheetId { get; set; } = string.Empty;
+    public string SheetName { get; set; } = "Quotes";
 }

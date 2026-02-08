@@ -4,6 +4,7 @@ using Luxclusif.Backend.Application.Dtos;
 using Luxclusif.Backend.Domain.Entities;
 using Luxclusif.Backend.Infrastructure.Commands;
 using Luxclusif.Backend.Infrastructure.Database;
+using Npgsql;
 
 namespace Luxclusif.Backend.Infrastructure.Repositories;
 
@@ -215,9 +216,15 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
         IReadOnlyCollection<QuoteRow> quotes,
         QuoteDetails details)
     {
-        var categoryLookup = details.Categories.ToDictionary(entry => entry.Id, entry => entry.Name);
-        var brandLookup = details.Brands.ToDictionary(entry => entry.Id, entry => entry.Name);
-        var customerLookup = details.Customers.ToDictionary(entry => entry.QuoteId);
+        var categoryLookup = details.Categories
+            .GroupBy(entry => entry.Id)
+            .ToDictionary(group => group.Key, group => group.First().Name);
+        var brandLookup = details.Brands
+            .GroupBy(entry => entry.Id)
+            .ToDictionary(group => group.Key, group => group.First().Name);
+        var customerLookup = details.Customers
+            .GroupBy(entry => entry.QuoteId)
+            .ToDictionary(group => group.Key, group => group.First());
         var quoteLookup = quotes.ToDictionary(quote => quote.Id);
 
         var attributeValueLookup = details.AttributeValues
@@ -242,7 +249,7 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
             .ToDictionary(group => group.Key, group => group
                 .Select(file => new QuoteListFileDto(
                     file.Id.ToString(),
-                    file.Location,
+                    ResolveFileLocation(file),
                     new QuoteListFileMetadataDto(file.PhotoType, file.Description ?? string.Empty, file.PhotoSubtype)))
                 .ToList());
 
@@ -381,10 +388,79 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
         Guid ValueId,
         string Label);
 
+    private static string ResolveFileLocation(ItemFileRow file)
+    {
+        if (!string.IsNullOrWhiteSpace(file.Location))
+        {
+            return NormalizeDriveLocation(file.Location) ?? file.Location;
+        }
+
+        var externalId = !string.IsNullOrWhiteSpace(file.ExternalId) ? file.ExternalId : file.UploadExternalId;
+        if (!string.IsNullOrWhiteSpace(externalId))
+        {
+            return $"https://drive.google.com/thumbnail?id={externalId}&sz=w1000";
+        }
+
+        if (!string.IsNullOrWhiteSpace(file.UploadLocation))
+        {
+            return NormalizeDriveLocation(file.UploadLocation) ?? file.UploadLocation;
+        }
+
+        return string.Empty;
+    }
+
+    private static string? NormalizeDriveLocation(string location)
+    {
+        if (!location.Contains("drive.google.com", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        if (!TryExtractDriveId(location, out var id))
+        {
+            return null;
+        }
+
+        return $"https://drive.google.com/thumbnail?id={id}&sz=w1000";
+    }
+
+    private static bool TryExtractDriveId(string location, out string id)
+    {
+        id = string.Empty;
+        try
+        {
+            var uri = new Uri(location);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var idParam = query.Get("id");
+            if (!string.IsNullOrWhiteSpace(idParam))
+            {
+                id = idParam;
+                return true;
+            }
+
+            var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var fileIndex = Array.FindIndex(segments, segment => segment.Equals("d", StringComparison.OrdinalIgnoreCase));
+            if (fileIndex >= 0 && fileIndex + 1 < segments.Length)
+            {
+                id = segments[fileIndex + 1];
+                return true;
+            }
+        }
+        catch
+        {
+            return false;
+        }
+
+        return false;
+    }
+
     private sealed record ItemFileRow(
         Guid Id,
         Guid ItemId,
-        string Location,
+        string? ExternalId,
+        string? Location,
+        string? UploadExternalId,
+        string? UploadLocation,
         string PhotoType,
         string PhotoSubtype,
         string? Description);

@@ -54,12 +54,16 @@ public static class QuoteQueryCommands
 
         SELECT f.id AS Id,
                f.item_id AS ItemId,
+               f.external_id AS ExternalId,
                f.location AS Location,
+               fu.external_id AS UploadExternalId,
+               fu.location AS UploadLocation,
                f.photo_type AS PhotoType,
                f.photo_subtype AS PhotoSubtype,
                f.description AS Description
         FROM item_files f
         JOIN items i ON i.id = f.item_id
+        LEFT JOIN file_uploads fu ON fu.id::text = f.external_id
         WHERE i.quote_id = ANY(@QuoteIds);
 
         SELECT c.id AS Id, c.name AS Name

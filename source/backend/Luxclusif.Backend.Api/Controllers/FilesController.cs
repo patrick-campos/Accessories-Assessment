@@ -42,4 +42,30 @@ public sealed class FilesController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, "Unexpected error.");
         }
     }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] string id,
+        [FromServices] DeleteFile useCase,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await useCase.ExecuteAsync(id, cancellationToken);
+            return NoContent();
+        }
+        catch (DomainException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "Unexpected error.");
+        }
+    }
 }

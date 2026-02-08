@@ -9,6 +9,32 @@ namespace Luxclusif.Backend.Api.Controllers;
 [Route("quote")]
 public sealed class QuotesController : ControllerBase
 {
+    [HttpGet]
+    [ProducesResponseType(typeof(QuoteListResponseDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<QuoteListResponseDto>> GetAsync(
+        [FromQuery] int pageNumber,
+        [FromServices] GetQuotes useCase,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await useCase.ExecuteAsync(pageNumber, cancellationToken);
+            return Ok(response);
+        }
+        catch (DomainException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "Unexpected error.");
+        }
+    }
+
     [HttpPost]
     [ProducesResponseType(typeof(QuoteResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<QuoteResponse>> CreateAsync(

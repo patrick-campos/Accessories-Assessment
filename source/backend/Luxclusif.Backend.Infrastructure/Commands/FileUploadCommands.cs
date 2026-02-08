@@ -6,4 +6,21 @@ public static class FileUploadCommands
         INSERT INTO file_uploads (id, provider, external_id, location, photo_type, photo_subtype, description)
         VALUES (@Id::uuid, @Provider, @ExternalId, @Location, @PhotoType, @PhotoSubtype, @Description)
         """;
+
+    public const string SelectById = """
+        SELECT id AS Id,
+               provider AS Provider,
+               external_id AS ExternalId,
+               location AS Location,
+               photo_type AS PhotoType,
+               photo_subtype AS PhotoSubtype,
+               description AS Description
+        FROM file_uploads
+        WHERE id = @Id::uuid
+        """;
+
+    public const string DeleteById = """
+        DELETE FROM file_uploads
+        WHERE id = @Id::uuid
+        """;
 }

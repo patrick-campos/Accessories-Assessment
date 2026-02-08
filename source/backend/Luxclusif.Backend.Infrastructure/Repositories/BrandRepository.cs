@@ -29,7 +29,7 @@ public sealed class BrandRepository : RepositoryBase, IBrandRepository
                     HasAvailableBuyer = hasAvailableBuyer
                 },
                 transaction);
-            return rows.Select(row => new Brand(row.Id, row.Name)).ToList();
+            return rows.Select(row => new Brand(row.Id.ToString(), row.Name)).ToList();
         }
         finally
         {
@@ -40,5 +40,5 @@ public sealed class BrandRepository : RepositoryBase, IBrandRepository
         }
     }
 
-    private sealed record BrandRow(string Id, string Name);
+    private sealed record BrandRow(Guid Id, string Name);
 }

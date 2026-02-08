@@ -42,4 +42,63 @@ public sealed class FileUploadRepository : RepositoryBase, IFileUploadRepository
             }
         }
     }
+
+    public async Task<FileUpload?> GetByIdAsync(string id, CancellationToken cancellationToken)
+    {
+        var (connection, transaction, shouldDispose) = await GetSessionAsync(_connectionFactory, cancellationToken);
+        try
+        {
+            var row = await connection.QuerySingleOrDefaultAsync<FileUploadRow>(
+                FileUploadCommands.SelectById,
+                new { Id = Guid.Parse(id) },
+                transaction);
+
+            if (row is null)
+            {
+                return null;
+            }
+
+            return new FileUpload(
+                row.Id.ToString(),
+                row.Provider,
+                row.ExternalId,
+                row.Location,
+                new FileMetadata(row.PhotoType, row.PhotoSubtype, row.Description));
+        }
+        finally
+        {
+            if (shouldDispose)
+            {
+                await connection.DisposeAsync();
+            }
+        }
+    }
+
+    public async Task DeleteAsync(string id, CancellationToken cancellationToken)
+    {
+        var (connection, transaction, shouldDispose) = await GetSessionAsync(_connectionFactory, cancellationToken);
+        try
+        {
+            await connection.ExecuteAsync(
+                FileUploadCommands.DeleteById,
+                new { Id = Guid.Parse(id) },
+                transaction);
+        }
+        finally
+        {
+            if (shouldDispose)
+            {
+                await connection.DisposeAsync();
+            }
+        }
+    }
+
+    private sealed record FileUploadRow(
+        Guid Id,
+        string Provider,
+        string ExternalId,
+        string Location,
+        string PhotoType,
+        string PhotoSubtype,
+        string Description);
 }

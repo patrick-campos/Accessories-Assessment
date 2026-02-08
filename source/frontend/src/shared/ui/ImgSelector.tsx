@@ -18,16 +18,31 @@ export function IMGSelector({ IsMissing, Label, MiddleLabel, className, IMGRef, 
 
     const inputRef = React.useRef<HTMLInputElement | null>(null);
 
+    function isLocalPreviewUrl(value: string) {
+        return value.startsWith("blob:") || value.startsWith("data:");
+    }
+
+    function RenderRemoveButton(shouldShow: boolean, removFunction?: (event: React.MouseEvent<HTMLButtonElement>) => void): JSX.Element {
+        if(!shouldShow)
+            return <></>
+
+        return (
+            <Button className="absolute right-0 px-[1rem]" variant={"icon"} onClick={removFunction}>
+                <Trash2 className="h-[1.5rem] w-[1.5rem]"/>
+            </Button>
+        )
+    }
+
     function RenderPreviewImage(ref:string | null, removFunction?: (event: React.MouseEvent<HTMLButtonElement>) => void): JSX.Element{
         if(ref == null)
             return <></>
 
+        const showRemove = Boolean(removFunction) && isLocalPreviewUrl(ref);
+
         return (
             <div className="relative w-full h-full">
-                <Button className="absolute right-0 px-[1rem]" variant={"icon"} onClick={removFunction}>
-                    <Trash2 className="h-[1.5rem] w-[1.5rem]"/>
-                </Button>
-                <img src={ref} className="h-full w-full rounded-sm"/>
+                {RenderRemoveButton(showRemove, removFunction)}
+                <img src={ref} className="h-full w-full rounded-sm" referrerPolicy="no-referrer" />
             </div>
         )
     }
@@ -50,6 +65,9 @@ export function IMGSelector({ IsMissing, Label, MiddleLabel, className, IMGRef, 
                         return;
                     if(onSelect)
                         onSelect(file);
+                    if (inputRef.current) {
+                        inputRef.current.value = "";
+                    }
                 }}
                 />
             </label>

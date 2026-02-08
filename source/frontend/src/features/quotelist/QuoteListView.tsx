@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Button, MasterHeader } from "@/shared";
 import { ContentContainer } from "@/shared/ui/ContentContainer";
 import { DefaultText } from "@/shared/ui/DefaultText";
@@ -5,87 +6,71 @@ import { IMGSelector } from "@/shared/ui/ImgSelector";
 import { TitleText } from "@/shared/ui/Title";
 import { TwoGridContainer } from "@/shared/ui/TwoGridContainer";
 
-type QuoteListItem = {
-  id: string;
-  createdAt: string;
-  status: string;
-  reference: string;
-  countryOfOrigin: string;
-  items: Array<{
+export type QuoteListItem = {
     id: string;
+    reference: string;
+    createdAtLabel: string;
+    status: string;
+    brandName: string;
     model: string;
-    brand: { id: string; name: string };
-    files: Array<{ id: string; location: string; metadata: { photoSubtype: string } }>;
-  }>;
+    imageUrl: string;
 };
 
 type QuoteListViewProps = {
-  items: QuoteListItem[];
-  isLoading: boolean;
-  error: string | null;
+    items: ReactNode;
 };
 
-export function QuoteListView({ items, isLoading, error }: QuoteListViewProps) {
-    let content: React.ReactNode = null;
-    if (isLoading) {
-        content = <DefaultText>Loading quotes...</DefaultText>;
-    } else if (error) {
-        content = <DefaultText>{error}</DefaultText>;
-    } else if (!items.length) {
-        content = <DefaultText>No quotes yet.</DefaultText>;
-    } else {
-        const quote = items[0];
-        const firstItem = quote.items[0];
-        let imageUrl = "";
-        if (firstItem?.files?.length) {
-            const front = firstItem.files.find((file) => file.metadata.photoSubtype === "Front");
-            if (front?.location) {
-                imageUrl = front.location;
-            } else {
-                imageUrl = firstItem.files[0]?.location ?? "";
-            }
-        }
-
-        content = (
-            <TwoGridContainer className="max-lg:flex-row">
-                <div className="w-[calc(41.66%_-_2rem)] flex flex-end flex-col">
-                    <DefaultText>New Quotes</DefaultText>
-                    <IMGSelector IMGRef={imageUrl} className="border-none w-[80%]" />
+export function QuoteListView({ items }: QuoteListViewProps) {
+    return (
+        <section className="min-h-screen w-screen">
+            <div>
+                <MasterHeader />
+                <div className="w-full mt-[1.8rem] text-center">
+                    <TitleText className="text-[4.6rem] font-extrabold text-normal mb-lg">MY QUOTES</TitleText>
                 </div>
-                <aside className="w-[calc(50%_-_0.05px_-_2rem);] bg-red-50 py-[1.2rem]">
-                    <div className="flex justify-end">
-                        <DefaultText>ID #{quote.reference}</DefaultText>
+                <div className="px-[5%] mb-[1.2rem] max-lg:text-center">
+                    <DefaultText>New Quotes</DefaultText>
+                </div>
+            </div>
+            <ContentContainer>{items}</ContentContainer>
+        </section>
+    );
+}
+
+export function QuoteListItemCard({
+    reference,
+    createdAtLabel,
+    status,
+    brandName,
+    model,
+    imageUrl,
+}: QuoteListItem) {
+    return (
+        <section className="w-full min-h-[50rem] pb-lg [&:not(:last-child)]:border-b mb-lg max-lg:px-[5%]">
+            <TwoGridContainer className="max-lg:flex-row">
+                <div className="w-[30%] max-lg:w-full">
+                    <IMGSelector IMGRef={imageUrl} className="border-none w-[35vw] h-[35vw] flex flex-start max-lg:w-full max-lg:h-[46vh]" />
+                </div>
+                <aside className="w-[calc(50%_-_0.05px_-_2rem);] py-[1.2rem] max-lg:mt-md max-lg:w-full max-lg:pb-md">
+                    <div className="flex justify-end max-lg:justify-center ">
+                        <DefaultText>ID #{reference}</DefaultText>
+                    </div>
+                    <div className="mt-sm max-lg:text-center">
+                        <DefaultText>Submitted {createdAtLabel}</DefaultText>
                     </div>
                     <div className="mt-sm">
-                        <DefaultText>Submitted {new Date(quote.createdAt).toLocaleDateString()}</DefaultText>
-                    </div>
-                    <div className="mt-sm">
-                        <TitleText as="h2">{firstItem?.brand?.name ?? ""}</TitleText>
-                        <TitleText as="h3">{firstItem?.model ?? ""}</TitleText>
+                        <TitleText as="h2" className="text-emphasis font-normal max-lg:text-center">{brandName}</TitleText>
+                        <TitleText as="h3" className="text-emphasis font-normal max-lg:text-center">{model}</TitleText>
                     </div>
                     <div className="mt-[4rem]">
-                        <DefaultText>Status</DefaultText>
-                        <DefaultText>{quote.status}</DefaultText>
+                        <DefaultText className="font-normal max-lg:text-center">Status</DefaultText>
+                        <DefaultText className="font-normal text-subtitle max-lg:text-center">{status}</DefaultText>
                     </div>
-                    <div className="mt-[1.6rem]">
-                        <Button variant={"ghost"}>Cancel</Button>
+                    <div className="mt-[1.6rem] max-lg:text-center">
+                        <Button variant={"ghost"} className="text-subtitle">Cancel</Button>
                     </div>
                 </aside>
             </TwoGridContainer>
-        );
-    }
-
-    return (
-        <section className="h-screen w-screen">
-            <div>
-                <MasterHeader className="border-none" />
-                <div className="w-full mt-[1.8rem] text-center">
-                    <TitleText className="text-[4.6rem] font-extrabold text-normal">MY QUOTES</TitleText>
-                </div>
-            </div>
-            <ContentContainer>
-                {content}
-            </ContentContainer>
         </section>
-    )
+    );
 }

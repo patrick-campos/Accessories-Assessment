@@ -66,13 +66,13 @@ export function AuxiliarySections({ step }: AuxiliarySectionsProps) {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-6 xl:hidden">
+      <div className="space-y-6 lg:hidden">
         {sections.map((section, index) => (
           <MobileSection key={`${section.title ?? "section"}-${index}`} {...section} />
         ))}
       </div>
 
-      <div className="hidden space-y-6 xl:block">
+      <div className="hidden space-y-6 lg:block">
         {sections.map((section, index) => (
           <AuxiliarySection key={`${section.title ?? "section"}-${index}`} {...section} />
         ))}

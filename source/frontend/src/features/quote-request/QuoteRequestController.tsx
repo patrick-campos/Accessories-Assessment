@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { QuoteRequestView } from "./QuoteRequestView";
 import { defaultSchema, type FormSchema } from "./schema";
 import { RestClient } from "@/shared/api";
+import { useRouter } from "next/router";
 
 type PhotoSlot = "front" | "back" | "bottom" | "interior";
 type UploadedPhoto = { previewUrl: string; fileId: string };
@@ -126,6 +127,7 @@ function upsertItem(items: ItemDetails[], nextItem: ItemDetails) {
 }
 
 export function QuoteRequestController() {
+  const router = useRouter();
   const apiOrigin = React.useMemo(() => {
     const configuredOrigin = process.env.NEXT_PUBLIC_API_ORIGIN;
     if (configuredOrigin) {
@@ -626,7 +628,8 @@ export function QuoteRequestController() {
 
   const handleMyQuotes = React.useCallback(() => {
     setShowSuccessModal(false);
-  }, []);
+    void router.push("/quotelist");
+  }, [router]);
 
   return (
     <QuoteRequestView

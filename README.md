@@ -57,12 +57,12 @@ Services:
 - Frontend: `http://localhost:3000`
 - Postgres: `localhost:5432`
 
-## Backend Architecture
-- **Controllers**: Thin, HTTP-only concerns.
-- **Use cases**: Application layer (`UseCases/`).
-- **Repositories**: Infrastructure with Dapper (SQL per repository).
-- **Domain entities**: Validation and business rules.
-- **Services**: Google Drive/Sheets integration.
+## Backend Architecture (Hexagonal)
+- **Controllers (Adapters/In)**: Thin, HTTP-only concerns.
+- **Use cases (Application/Core)**: Application layer (`UseCases/`).
+- **Repositories (Adapters/Out)**: Infrastructure with Dapper (SQL per repository).
+- **Domain entities (Core)**: Validation and business rules.
+- **Services (Adapters/Out)**: Google Drive/Sheets integration.
 
 Patterns used:
 - Dependency Injection
@@ -70,7 +70,7 @@ Patterns used:
 - Use Case (Application Service)
 - DTO mapping
 
-## Frontend Architecture
+## Frontend Architecture (Feature-Based)
 - **Controllers** (`features/*/Controller.tsx`): Data fetching and state.
 - **Views** (`features/*/View.tsx`): Pure UI.
 - **Shared UI components** under `src/shared/ui`.

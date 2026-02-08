@@ -1,9 +1,5 @@
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Auth.OAuth2.Flows;
-using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
-using Google.Apis.Services;
 using Luxclusif.Backend.Application.Abstractions.Services;
 using Microsoft.Extensions.Options;
 
@@ -14,10 +10,10 @@ public sealed class GoogleDriveFileStorageService : IFileStorageService
     private readonly GoogleDriveOptions _options;
     private readonly DriveService _driveService;
 
-    public GoogleDriveFileStorageService(IOptions<GoogleDriveOptions> options)
+    public GoogleDriveFileStorageService(IOptions<GoogleDriveOptions> options, GoogleApiClientFactory clientFactory)
     {
         _options = options.Value;
-        _driveService = CreateDriveService(_options);
+        _driveService = clientFactory.CreateDriveService(_options);
     }
 
     public async Task<FileStorageResult> SaveAsync(string fileName, string contentType, Stream content, DateTimeOffset ttl, CancellationToken cancellationToken)
@@ -78,36 +74,4 @@ public sealed class GoogleDriveFileStorageService : IFileStorageService
         return $"https://drive.google.com/thumbnail?id={fileId}&sz=w1000";
     }
 
-    private static DriveService CreateDriveService(GoogleDriveOptions options)
-    {
-        if (string.IsNullOrWhiteSpace(options.ClientId) ||
-            string.IsNullOrWhiteSpace(options.ClientSecret) ||
-            string.IsNullOrWhiteSpace(options.RefreshToken))
-        {
-            throw new InvalidOperationException("GoogleDrive OAuth credentials are missing.");
-        }
-
-        var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
-        {
-            ClientSecrets = new ClientSecrets
-            {
-                ClientId = options.ClientId,
-                ClientSecret = options.ClientSecret
-            },
-            Scopes = [DriveService.ScopeConstants.DriveFile]
-        });
-
-        var token = new TokenResponse
-        {
-            RefreshToken = options.RefreshToken
-        };
-
-        var credential = new UserCredential(flow, "user", token);
-
-        return new DriveService(new BaseClientService.Initializer
-        {
-            HttpClientInitializer = credential,
-            ApplicationName = options.ApplicationName
-        });
-    }
 }

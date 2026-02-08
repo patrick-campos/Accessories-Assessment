@@ -1,9 +1,5 @@
 using System.Data;
 using Dapper;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Auth.OAuth2.Flows;
-using Google.Apis.Auth.OAuth2.Responses;
-using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Luxclusif.Backend.Application.Abstractions.Services;
@@ -24,11 +20,12 @@ public sealed class GoogleSheetService : ISpreadsheetService
     public GoogleSheetService(
         IOptions<GoogleSheetOptions> options,
         IOptions<GoogleDriveOptions> driveOptions,
+        GoogleApiClientFactory clientFactory,
         NpgsqlConnectionFactory connectionFactory)
     {
         _options = options.Value;
         _driveOptions = driveOptions.Value;
-        _sheetsService = CreateSheetsService(_driveOptions);
+        _sheetsService = clientFactory.CreateSheetsService(_driveOptions);
         _connectionFactory = connectionFactory;
     }
 
@@ -59,39 +56,6 @@ public sealed class GoogleSheetService : ISpreadsheetService
         request.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
 
         await request.ExecuteAsync(cancellationToken);
-    }
-
-    private static SheetsService CreateSheetsService(GoogleDriveOptions options)
-    {
-        if (string.IsNullOrWhiteSpace(options.ClientId) ||
-            string.IsNullOrWhiteSpace(options.ClientSecret) ||
-            string.IsNullOrWhiteSpace(options.RefreshToken))
-        {
-            throw new InvalidOperationException("Google OAuth credentials are missing.");
-        }
-
-        var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
-        {
-            ClientSecrets = new ClientSecrets
-            {
-                ClientId = options.ClientId,
-                ClientSecret = options.ClientSecret
-            },
-            Scopes = [SheetsService.Scope.Spreadsheets]
-        });
-
-        var token = new TokenResponse
-        {
-            RefreshToken = options.RefreshToken
-        };
-
-        var credential = new UserCredential(flow, "user", token);
-
-        return new SheetsService(new BaseClientService.Initializer
-        {
-            HttpClientInitializer = credential,
-            ApplicationName = options.ApplicationName
-        });
     }
 
     private static readonly string[] SizeKeys = ["size"];

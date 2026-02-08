@@ -45,6 +45,8 @@ builder.Services.AddScoped<GetCategories>();
 builder.Services.AddScoped<GetBrands>();
 builder.Services.AddScoped<GetCategoryAttributes>();
 builder.Services.AddScoped<SaveFile>();
+builder.Services.AddScoped<DeleteFile>();
+builder.Services.AddScoped<GetQuotes>();
 builder.Services.AddScoped<SaveQuote>();
 
 var app = builder.Build();

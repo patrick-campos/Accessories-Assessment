@@ -67,6 +67,11 @@ public sealed class SaveQuoteTests
             Items.Add(quote);
             return Task.CompletedTask;
         }
+
+        public Task<PagedQuoteList> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new PagedQuoteList(0, Array.Empty<QuoteListItemDto>()));
+        }
     }
 
     private sealed class InMemorySpreadsheetService : ISpreadsheetService

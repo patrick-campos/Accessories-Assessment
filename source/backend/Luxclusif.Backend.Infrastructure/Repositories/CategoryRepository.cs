@@ -24,7 +24,7 @@ public sealed class CategoryRepository : RepositoryBase, ICategoryRepository
                 CategoryCommands.SelectByFilters,
                 new { CountryIsoCode = countryIsoCode, HasAvailableBuyer = hasAvailableBuyer },
                 transaction);
-            return rows.Select(row => new Category(row.Id, row.Name)).ToList();
+            return rows.Select(row => new Category(row.Id.ToString(), row.Name)).ToList();
         }
         finally
         {
@@ -35,5 +35,5 @@ public sealed class CategoryRepository : RepositoryBase, ICategoryRepository
         }
     }
 
-    private sealed record CategoryRow(string Id, string Name);
+    private sealed record CategoryRow(Guid Id, string Name);
 }

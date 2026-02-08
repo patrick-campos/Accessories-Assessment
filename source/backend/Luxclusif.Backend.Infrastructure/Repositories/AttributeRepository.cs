@@ -31,7 +31,7 @@ public sealed class AttributeRepository : RepositoryBase, IAttributeRepository
                 return Array.Empty<CategoryAttribute>();
             }
 
-            var attributeIds = attributeRows.Select(row => Guid.Parse(row.Id)).ToArray();
+            var attributeIds = attributeRows.Select(row => row.Id).ToArray();
 
             var optionRows = (await connection.QueryAsync<AttributeOptionRow>(
                 AttributeCommands.SelectOptionsByAttributeIds,
@@ -42,7 +42,7 @@ public sealed class AttributeRepository : RepositoryBase, IAttributeRepository
                 .GroupBy(option => option.AttributeId)
                 .ToDictionary(group => group.Key, group => group
                     .Select(option => new AttributeOption(
-                        option.Id,
+                        option.Id.ToString(),
                         option.Name,
                         option.Key,
                         option.DisplayOrder,
@@ -50,7 +50,7 @@ public sealed class AttributeRepository : RepositoryBase, IAttributeRepository
                     .ToList());
 
             return attributeRows.Select(row => new CategoryAttribute(
-                row.Id,
+                row.Id.ToString(),
                 row.Name,
                 row.Key,
                 row.DisplayOrder,
@@ -69,7 +69,7 @@ public sealed class AttributeRepository : RepositoryBase, IAttributeRepository
     }
 
     private sealed record AttributeRow(
-        string Id,
+        Guid Id,
         string Name,
         string Key,
         int DisplayOrder,
@@ -78,8 +78,8 @@ public sealed class AttributeRepository : RepositoryBase, IAttributeRepository
         string BusinessModel);
 
     private sealed record AttributeOptionRow(
-        string Id,
-        string AttributeId,
+        Guid Id,
+        Guid AttributeId,
         string Name,
         string Key,
         int DisplayOrder,

@@ -25,4 +25,15 @@ public sealed class GoogleDriveFileStorageService : IFileStorageService
 
         return new FileStorageResult(_options.Provider, externalId, filePath);
     }
+
+    public Task DeleteAsync(string externalId, string location, CancellationToken cancellationToken)
+    {
+        var filePath = location;
+        if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+
+        return Task.CompletedTask;
+    }
 }

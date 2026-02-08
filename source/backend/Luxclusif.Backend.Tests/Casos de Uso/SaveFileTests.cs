@@ -3,6 +3,7 @@ using Luxclusif.Backend.Application.Abstractions.Services;
 using Luxclusif.Backend.Application.Dtos;
 using Luxclusif.Backend.Application.UseCases.Files;
 using Luxclusif.Backend.Domain.Entities;
+using System.Linq;
 
 namespace Luxclusif.Backend.Tests.Casos_de_Uso;
 
@@ -31,6 +32,11 @@ public sealed class SaveFileTests
         {
             return Task.FromResult(new FileStorageResult("GoogleDrive", Guid.NewGuid().ToString(), "/tmp/file"));
         }
+
+        public Task DeleteAsync(string externalId, string location, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
     }
 
     private sealed class InMemoryFileUploadRepository : IFileUploadRepository
@@ -40,6 +46,17 @@ public sealed class SaveFileTests
         public Task SaveAsync(FileUpload fileUpload, CancellationToken cancellationToken)
         {
             Items.Add(fileUpload);
+            return Task.CompletedTask;
+        }
+
+        public Task<FileUpload?> GetByIdAsync(string id, CancellationToken cancellationToken)
+        {
+            return Task.FromResult<FileUpload?>(Items.FirstOrDefault(item => item.Id == id));
+        }
+
+        public Task DeleteAsync(string id, CancellationToken cancellationToken)
+        {
+            Items.RemoveAll(item => item.Id == id);
             return Task.CompletedTask;
         }
     }

@@ -23,3 +23,7 @@ body {
 a {
   @apply text-ink underline underline-offset-4;
 }
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}

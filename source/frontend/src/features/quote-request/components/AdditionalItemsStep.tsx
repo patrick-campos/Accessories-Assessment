@@ -24,10 +24,10 @@ export function AdditionalItemsStep({ items, brandOptions, onAddAnother }: Addit
     )
   }
 
-  function RenderItemImagePart(index: number): JSX.Element {
+  function RenderItemImagePart(item: ItemDetails, index: number): JSX.Element {
     return (
       <div key={`ItemImagePart-${index}`}>
-        <img className="w-[10rem] h-[10rem]" src="" />
+        <img className="w-[10rem] h-[10rem] rounded-[0.8rem]" src={item.photos.front.previewUrl ?? ""} />
       </div>
     )
   }
@@ -37,8 +37,8 @@ export function AdditionalItemsStep({ items, brandOptions, onAddAnother }: Addit
       <div className="space-y-6">
         {items.map((item, index) => {
           return (
-            <div className="flex gap-5 border-solid border-default w-full p-[1.2rem] border rounded-[0.8rem]">
-              {RenderItemImagePart(index)}
+            <div key={`AdditionalItem-${index}`} className="flex gap-5 border-solid border-default w-full p-[1.2rem] border rounded-[0.8rem]">
+              {RenderItemImagePart(item, index)}
               {RenderItemInformationPart(item, index)}
             </div>
           )

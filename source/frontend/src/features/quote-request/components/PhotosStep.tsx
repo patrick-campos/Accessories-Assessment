@@ -10,7 +10,7 @@ type PhotosStepProps = {
   item: ItemDetails;
   showErrors: boolean;
   onUpdatePhoto: (slot: "front" | "back" | "bottom" | "interior", file: File | null) => void;
-  onAddAdditionalPhotos: (files: FileList | null) => void;
+  onAddAdditionalPhoto: (file: File | null) => void;
   onRemoveAdditionalPhoto: (index: number) => void;
 };
 
@@ -33,21 +33,21 @@ function PhotoSlotCard({
   onSelect: (file: File | null) => void;
 }) {
   const cardClasses = cn(
-    "flex h-[15.5rem] w-[15.5rem] flex-col items-center justify-center gap-3 rounded-[0.8rem] border-[0.1rem] border-dashed px-4 py-6 text-center text-xs text-clay max-sm:",
+    "flex h-[15.5rem] w-[15.5rem] flex-col items-center justify-center gap-3 rounded-[0.8rem] border-[0.1rem] border-dashed px-4 py-6 text-center text-xs text-clay max-lg:m-auto",
     preview ? "border-ink bg-white" : "border-default bg-white mb-[0.6rem] cursor-pointer",
     isMissing ? "border-rose" : ""
   );
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
-  function handleRemove(event: React.MouseEvent<HTMLButtonElement>) {
-    event.preventDefault();
+  function handleRemove(event?: React.MouseEvent<HTMLButtonElement>) {
+    event?.preventDefault();
     onSelect(null);
     if (inputRef.current) {
       inputRef.current.value = "";
     }
   }
   return (
-    <div className="max-lg:flex max-lg:justify-center">
+    <div className="max-lg:m-auto">
       <IMGSelector Label={label} OnSelect={onSelect} RemoveAction={handleRemove} IMGRef={preview} IsMissing={isMissing}/>
      </div>
   );
@@ -111,8 +111,8 @@ function PhotoSlotsGrid({
     <div className="grid gap-4 max-sm:grid-cols-2 lg:grid-cols-4 max-lg:grid-cols-3">
       {photoLabels.map((label) => {
         const slot = label.toLowerCase() as "front" | "back" | "bottom" | "interior";
-        const preview = item.photos[slot];
-        const isMissing = showErrors && !preview;
+        const preview = item.photos[slot].previewUrl;
+        const isMissing = showErrors && !item.photos[slot].fileId;
         return (
           <PhotoSlotCard
             key={label}
@@ -131,7 +131,7 @@ function AdditionalPhotoGrid({
   photos,
   onRemove,
 }: {
-  photos: string[];
+  photos: Array<{ previewUrl: string }>;
   onRemove: (index: number) => void;
 }) {
   if (photos.length === 0) return null;
@@ -139,7 +139,7 @@ function AdditionalPhotoGrid({
     <div className="grid gap-3 sm:grid-cols-3">
       {photos.map((photo, index) => (
         <div key={`${photo}-${index}`} className="relative h-24 w-full overflow-hidden rounded-2xl">
-          <img src={photo} alt={`Additional ${index + 1}`} className="h-full w-full object-cover" />
+          <img src={photo.previewUrl} alt={`Additional ${index + 1}`} className="h-full w-full object-cover" />
           <button
             type="button"
             className="absolute right-2 top-2 rounded-full bg-ink/70 px-2 py-1 text-[10px] text-mist"
@@ -157,7 +157,7 @@ export function PhotosStep({
   item,
   showErrors,
   onUpdatePhoto,
-  onAddAdditionalPhotos,
+  onAddAdditionalPhoto,
   onRemoveAdditionalPhoto,
 }: PhotosStepProps) {
   return (
@@ -174,7 +174,11 @@ export function PhotosStep({
         <DefaultText className="mt-[1.2rem] text-secondaryTitle">You'll need to add photos of any wear and damage. Make sure to include any hardware,
           'made in' tags and serial numbers. You can add up to 16 photos â€“ the more you provide,
           the more accurate your quote.</DefaultText>
-        <DynamicImagesSelect />
+        <DynamicImagesSelect
+          images={item.additionalPhotos}
+          onAddImage={onAddAdditionalPhoto}
+          onRemoveImage={onRemoveAdditionalPhoto}
+        />
       </div>
 
       <div className="pt-8">

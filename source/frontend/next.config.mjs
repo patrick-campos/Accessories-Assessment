@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const isDev = process.env.NODE_ENV !== "production";
 
+const apiOrigin = process.env.NEXT_PUBLIC_API_ORIGIN;
+
+const connectSrc = ["'self'"];
+if (apiOrigin) {
+  connectSrc.push(apiOrigin);
+}
+
 const nextConfig = {
   reactStrictMode: true,
   async headers() {
@@ -12,7 +19,7 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              `default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; ${scriptSrc}; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'`,
+              `default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; ${scriptSrc}; connect-src ${connectSrc.join(" ")}; frame-ancestors 'none'; base-uri 'self'`,
           },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },

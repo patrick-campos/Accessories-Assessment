@@ -1,30 +1,10 @@
-CREATE TABLE IF NOT EXISTS countries (
-    iso_code varchar(2) PRIMARY KEY,
-    name text NOT NULL
-);
-
 INSERT INTO countries (iso_code, name)
 VALUES ('US', 'United States of America')
 ON CONFLICT (iso_code) DO NOTHING;
 
-CREATE TABLE IF NOT EXISTS categories (
-    id uuid PRIMARY KEY,
-    country_iso_code varchar(2) NOT NULL,
-    has_available_buyer boolean NOT NULL,
-    name text NOT NULL
-);
-
 INSERT INTO categories (id, country_iso_code, has_available_buyer, name)
 VALUES ('7b0d9f35-54dd-4d9f-9c56-5a5f7f1d5d39', 'US', true, 'Bags')
 ON CONFLICT (id) DO NOTHING;
-
-CREATE TABLE IF NOT EXISTS brands (
-    id uuid PRIMARY KEY,
-    category_id uuid NOT NULL,
-    country_iso_code varchar(2) NOT NULL,
-    has_available_buyer boolean NOT NULL,
-    name text NOT NULL
-);
 
 INSERT INTO brands (id, category_id, country_iso_code, has_available_buyer, name)
 VALUES
@@ -34,26 +14,6 @@ VALUES
   ('2d0f9c7b-6a2f-4a8b-9b0d-7f1d2b3c4f04', '7b0d9f35-54dd-4d9f-9c56-5a5f7f1d5d39', 'US', true, 'Saint Laurent'),
   ('4f1d2b3c-7f0d-4a9b-8c2f-9b0d1a2f3f05', '7b0d9f35-54dd-4d9f-9c56-5a5f7f1d5d39', 'US', true, 'Chanel')
 ON CONFLICT (id) DO NOTHING;
-
-CREATE TABLE IF NOT EXISTS category_attributes (
-    id uuid PRIMARY KEY,
-    category_id uuid NOT NULL,
-    name text NOT NULL,
-    key text NOT NULL,
-    display_order int NOT NULL,
-    type text NOT NULL,
-    is_required boolean NOT NULL,
-    business_model text NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS attribute_options (
-    id uuid PRIMARY KEY,
-    attribute_id uuid NOT NULL,
-    name text NOT NULL,
-    key text NOT NULL,
-    display_order int NOT NULL,
-    output_label text NOT NULL
-);
 
 INSERT INTO category_attributes (id, category_id, name, key, display_order, type, is_required, business_model)
 VALUES (

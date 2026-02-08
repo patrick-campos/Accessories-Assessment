@@ -13,7 +13,7 @@ export function Input({ label, hint, error, className, ...props }: InputProps) {
       {label ? <span className="mb-[0.4rem] block text-normal text-secondaryTitle">{label}</span> : null}
       <input
         className={cn(
-          "h-[4.4rem] rounded-[0.8rem] border border-dune bg-white px-4 text-base text-ink shadow-sm focus:border-ink focus:outline-none",
+          "h-[4.4rem] rounded-sm border border-dune bg-white px-4 text-base text-ink shadow-sm focus:border-ink focus:outline-none",
           error ? "border-rose border-dashed" : "",
           className
         )}

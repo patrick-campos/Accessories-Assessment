@@ -34,7 +34,7 @@ export function Modal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-6">
-      <div className="w-full max-w-[72rem] rounded-[0.8rem] bg-white shadow-lg">
+      <div className="w-full max-w-[72rem] rounded-sm bg-white shadow-lg">
         <div className="flex items-center justify-between border-b border-dune px-6 py-4">
           <h2 className="text-sm font-semibold text-ink">{title}</h2>
           <Button type="button" variant="ghost" className="px-2 py-1" onClick={onClose}>

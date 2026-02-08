@@ -56,10 +56,10 @@ export function QuoteListView({ items, isLoading, error }: QuoteListViewProps) {
                     <div className="flex justify-end">
                         <DefaultText>ID #{quote.reference}</DefaultText>
                     </div>
-                    <div className="mt-[2.4rem]">
+                    <div className="mt-sm">
                         <DefaultText>Submitted {new Date(quote.createdAt).toLocaleDateString()}</DefaultText>
                     </div>
-                    <div className="mt-[2.4rem]">
+                    <div className="mt-sm">
                         <TitleText as="h2">{firstItem?.brand?.name ?? ""}</TitleText>
                         <TitleText as="h3">{firstItem?.model ?? ""}</TitleText>
                     </div>

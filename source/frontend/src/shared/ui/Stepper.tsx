@@ -13,7 +13,7 @@ export function Stepper({ steps, currentIndex }: StepperProps) {
     return (
       <div key={`step-${key}`} className="mr-[1.2rem] overflow-x-hidden w-[calc(30%-1.2rem)] max-sm:m-auto">
         <span className={cn(textColor, "whitespace-nowrap")}>{stepName}</span>
-        <div className={cn('flex items-center gap-2 rounded-[100rem] h-[0.4rem] rounded-t-[100rem] text-xs font-semibold mt-[0.8rem]', color)}></div>
+        <div className={cn('flex items-center gap-2 rounded-[100rem] h-[0.4rem] rounded-t-[100rem] text-xs font-semibold mt-smround', color)}></div>
       </div>
     )
   }

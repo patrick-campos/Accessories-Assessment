@@ -14,7 +14,7 @@ export function InformationSection({ Title, Item, OnEdit, ...props }: Informatio
     function RenderInformationPairSection(item: Record<string, string>): JSX.Element {
         return (
             <table className="w-full border-spacing-y-3">
-                <tbody className="gap-[2.4rem] flex flex-col items-start w-full">
+                <tbody className="gap-sm flex flex-col items-start w-full">
                     {Object.entries(item).map(([key, value]) => {
                         return (
                             <tr className="w-full flex items-start justify-between">
@@ -29,7 +29,7 @@ export function InformationSection({ Title, Item, OnEdit, ...props }: Informatio
     }
 
     return (
-        <div className="mt-[4.8rem]">
+        <div className="mt-lg">
             <VerticalTableHeader Title={Title} OnClick={OnEdit}/>
             <div className="">
                 {RenderInformationPairSection(Item)}

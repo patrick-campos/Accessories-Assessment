@@ -14,7 +14,7 @@ export function VerticalTableHeader({Title, ButtonText, className, ...props}:Ver
         buttonLabel = ButtonText;
     }
     return (
-        <div {...props} className={cn("flex justify-between mb-[2.4rem]", className)}>
+        <div {...props} className={cn("flex justify-between mb-sm", className)}>
             <TitleText as="h2" className="font-normal">{Title}</TitleText>
             <Button className="text-default text-subtitle font-semibold" variant={"ghost"} onClick={props.OnClick}>
                 {buttonLabel}

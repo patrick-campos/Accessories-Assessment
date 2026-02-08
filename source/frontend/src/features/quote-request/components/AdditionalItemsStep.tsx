@@ -27,7 +27,7 @@ export function AdditionalItemsStep({ items, brandOptions, onAddAnother }: Addit
   function RenderItemImagePart(item: ItemDetails, index: number): JSX.Element {
     return (
       <div key={`ItemImagePart-${index}`}>
-        <img className="w-[10rem] h-[10rem] rounded-[0.8rem]" src={item.photos.front.previewUrl ?? ""} />
+        <img className="w-[10rem] h-[10rem] rounded-sm" src={item.photos.front.previewUrl ?? ""} />
       </div>
     )
   }
@@ -37,20 +37,20 @@ export function AdditionalItemsStep({ items, brandOptions, onAddAnother }: Addit
       <div className="space-y-6">
         {items.map((item, index) => {
           return (
-            <div key={`AdditionalItem-${index}`} className="flex gap-5 border-solid border-default w-full p-[1.2rem] border rounded-[0.8rem]">
+            <div key={`AdditionalItem-${index}`} className="flex gap-5 border-solid border-default w-full p-[1.2rem] border rounded-sm">
               {RenderItemImagePart(item, index)}
               {RenderItemInformationPart(item, index)}
             </div>
           )
         })}
       </div>
-      <div className="mt-[2.4rem] mb-[2.8rem]">
+      <div className="mt-sm mb-[2.8rem]">
         <button
         type="button"
         onClick={onAddAnother}
-        className="w-full border-dashed border border-default rounded-[0.8rem] h-full"
+        className="w-full border-dashed border border-default rounded-sm h-full"
       >
-        <div className="flex flex-col justify-center gap-3 items-center p-[2.4rem]">
+        <div className="flex flex-col justify-center gap-3 items-center p-sm">
           <Plus/>
           <DefaultText className="">Add more Items</DefaultText>
         </div>

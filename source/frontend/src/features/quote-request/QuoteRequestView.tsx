@@ -135,17 +135,17 @@ export function QuoteRequestView({
         <HeaderStep Items={schema.steps.map((item) => item.headerTitle)} CurrentIndexOfActiveItem={currentStep} />
         <TwoGridContainer className="xl:w-[144rem] lg:m-auto">
           <ContainerStep className="space-y-6">
-            <div className="mb-[4.8rem]">
+            <div className="mb-lg">
               <TitleText className="font-normal text-title">{step?.inputTitle}</TitleText>
               <DefaultText className="mt-[1.2rem] text-subtitle">{step.inputSubtitle}</DefaultText>
             </div>
             {stepContent}
             <div className="flex justify-end pt-[6.2rem] max-sm:grid-cols-2 max-sm:flex-col max-sm:gap-8 max-sm:justify-center max-sm:pt-[2rem]">
-              <ButtonStep variant="outline" shouldRender={showBack} onClick={onBack} className="rounded-[0.5rem] px-[5.8rem] min-w-[4.4rem] mr-[2rem] mb-0.8rem max-sm:w-full max-sm:mr-0">Back</ButtonStep>
-              <ButtonStep shouldRender={shouldShowNext}  onClick={onNext} disabled={submitState === "sending" || isUploading} className="rounded-[0.5rem] px-[5.8rem] min-w-[4.4rem] max-sm:w-full">{isLast ? 'Request Quote':'Next'}</ButtonStep>
+              <ButtonStep variant="outline" shouldRender={showBack} onClick={onBack} className="rounded-round px-[5.8rem] min-w-[4.4rem] mr-[2rem] mb-0.8rem max-sm:w-full max-sm:mr-0">Back</ButtonStep>
+              <ButtonStep shouldRender={shouldShowNext}  onClick={onNext} disabled={submitState === "sending" || isUploading} className="rounded-round px-[5.8rem] min-w-[4.4rem] max-sm:w-full">{isLast ? 'Request Quote':'Next'}</ButtonStep>
             </div>
           </ContainerStep>
-          <aside className="w-full bg-transparent max-xl:py-[4.8rem] xl:w-[35.3rem] min-[1440px]:w-[39.3rem] max-lg:my-[4.8rem]">
+          <aside className="w-full bg-transparent max-xl:py-lg xl:w-[35.3rem] min-[1440px]:w-[39.3rem] max-lg:my-lg">
             <AuxiliarySections step={step} />
           </aside>
         </TwoGridContainer>

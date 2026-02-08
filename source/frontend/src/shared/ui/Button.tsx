@@ -10,7 +10,7 @@ const buttonVariants = cva(
         primary: "bg-ink text-mist hover:bg-clay",
         outline: "border border-ink text-ink hover:bg-ink hover:text-mist",
         ghost: "text-ink hover:bg-dune",
-        icon: "rounded-[0.8rem] bg-white border-default min-h-[44px] min-h-[44px] border-solid cursor-hover flex align-center justify-center border p-0"
+        icon: "-sm bg-white border-default min-h-[44px] min-h-[44px] border-solid cursor-hover flex align-center justify-center border p-0"
       },
     },
     defaultVariants: {

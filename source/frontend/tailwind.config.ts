@@ -4,6 +4,22 @@ export default {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      spacing: {
+        xs: "0.4rem",
+        sm: "2.4rem",
+        md: "3.6rem",
+        lg: "4.8rem",
+        xl: "4.8rem"
+      },
+      borderRadius: {
+        xs: "0.4rem",
+        sm: "0.8rem",
+        md: "3.6rem",
+        lg: "4.8rem",
+        xl: "4.8rem",
+        xsround: "0.5rem",
+        smround: "0.8rem"
+      },
       colors: {
         ink: "#0f0f0f",
         mist: "#f6f3ef",
@@ -21,6 +37,13 @@ export default {
         secondaryTitle: "1.4rem",
         subtitle: "1.6rem",
         emphasis: "3.2rem"
+      },
+      lineHeight: {
+        tight: "1.1",
+        snug: "1.25",
+        normal: "1.375",
+        relaxed: "1.75",
+        loose: "2"
       }
     },
     fontFamily: {

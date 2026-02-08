@@ -62,7 +62,7 @@ export function ReviewStep({
             />
             <div className="pb-[5.8rem] border-default">
               <VerticalTableHeader
-                className="mt-[4.8rem] pb-[1rem]"
+                className="mt-lg pb-[1rem]"
                 Title="Attached photos"
                 OnClick={() => onEditPhotos(item.id)}
               />

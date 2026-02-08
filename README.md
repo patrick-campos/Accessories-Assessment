@@ -27,6 +27,7 @@ Generate a refresh token using:
 ```
 
 ## Environment Variables
+Backend **requires** Google variables configured to work correctly.
 Configure in `Accessories-Assessment/docker/backend.env`:
 ```
 GoogleDrive__ClientId=...
@@ -40,7 +41,7 @@ GoogleSheet__SpreadsheetId=...         # Spreadsheet ID
 GoogleSheet__SheetName=quote           # Sheet tab name
 ```
 
-Frontend variables (in `Accessories-Assessment/docker/frontend.env`):
+Frontend variables are only required for production (in `Accessories-Assessment/docker/frontend.env`):
 ```
 NEXT_PUBLIC_API_ORIGIN=http://localhost:8080
 NEXT_PUBLIC_REQUEST_QUOTE_URL=http://localhost:8080/quote

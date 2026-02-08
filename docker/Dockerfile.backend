@@ -1,0 +1,44 @@
+# syntax=docker/dockerfile:1
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY source/backend/Luxclusif.Backend.slnx ./Luxclusif.Backend.slnx
+COPY source/backend/Luxclusif.Backend.Api/Luxclusif.Backend.Api.csproj Luxclusif.Backend.Api/
+COPY source/backend/Luxclusif.Backend.Application/Luxclusif.Backend.Application.csproj Luxclusif.Backend.Application/
+COPY source/backend/Luxclusif.Backend.Domain/Luxclusif.Backend.Domain.csproj Luxclusif.Backend.Domain/
+COPY source/backend/Luxclusif.Backend.Infrastructure/Luxclusif.Backend.Infrastructure.csproj Luxclusif.Backend.Infrastructure/
+COPY source/backend/Luxclusif.Backend.Tests/Luxclusif.Backend.Tests.csproj Luxclusif.Backend.Tests/
+
+RUN dotnet restore Luxclusif.Backend.Api/Luxclusif.Backend.Api.csproj
+
+COPY source/backend/. ./
+
+RUN dotnet publish Luxclusif.Backend.Api/Luxclusif.Backend.Api.csproj -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libkrb5-3 libgssapi-krb5-2 curl \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG GoogleDrive__FolderId=""
+ARG GoogleDrive__ApplicationName="Luxclusif"
+ARG GoogleDrive__Provider="GoogleDrive"
+ARG GoogleDrive__ClientId=""
+ARG GoogleDrive__ClientSecret=""
+ARG GoogleDrive__RefreshToken=""
+
+ENV GoogleDrive__FolderId=$GoogleDrive__FolderId \
+    GoogleDrive__ApplicationName=$GoogleDrive__ApplicationName \
+    GoogleDrive__Provider=$GoogleDrive__Provider \
+    GoogleDrive__ClientId=$GoogleDrive__ClientId \
+    GoogleDrive__ClientSecret=$GoogleDrive__ClientSecret \
+    GoogleDrive__RefreshToken=$GoogleDrive__RefreshToken
+
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+EXPOSE 8080
+
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "Luxclusif.Backend.Api.dll"]

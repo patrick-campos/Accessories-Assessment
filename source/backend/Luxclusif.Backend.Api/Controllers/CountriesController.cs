@@ -13,6 +13,7 @@ public sealed class CountriesController : ControllerBase
     [ProducesResponseType(typeof(ListResponse<CountryDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ListResponse<CountryDto>>> GetAsync(
         [FromServices] GetCountries useCase,
+        [FromServices] ILogger<CountriesController> logger,
         CancellationToken cancellationToken)
     {
         try
@@ -28,8 +29,9 @@ public sealed class CountriesController : ControllerBase
         {
             return BadRequest(exception.Message);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            logger.LogError(exception, "Unexpected error while fetching countries.");
             return StatusCode(StatusCodes.Status500InternalServerError, "Unexpected error.");
         }
     }

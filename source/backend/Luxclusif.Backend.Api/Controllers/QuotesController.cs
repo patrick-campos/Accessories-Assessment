@@ -14,6 +14,7 @@ public sealed class QuotesController : ControllerBase
     public async Task<ActionResult<QuoteListResponseDto>> GetAsync(
         [FromQuery] int pageNumber,
         [FromServices] GetQuotes useCase,
+        [FromServices] ILogger<QuotesController> logger,
         CancellationToken cancellationToken)
     {
         try
@@ -29,8 +30,9 @@ public sealed class QuotesController : ControllerBase
         {
             return BadRequest(exception.Message);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            logger.LogError(exception, "Unexpected error while fetching quotes.");
             return StatusCode(StatusCodes.Status500InternalServerError, "Unexpected error.");
         }
     }
@@ -40,6 +42,7 @@ public sealed class QuotesController : ControllerBase
     public async Task<ActionResult<QuoteResponse>> CreateAsync(
         [FromBody] QuoteRequestDto request,
         [FromServices] SaveQuote useCase,
+        [FromServices] ILogger<QuotesController> logger,
         CancellationToken cancellationToken)
     {
         try
@@ -55,9 +58,11 @@ public sealed class QuotesController : ControllerBase
         {
             return BadRequest(exception.Message);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            logger.LogError(exception, "Unexpected error while creating quote.");
             return StatusCode(StatusCodes.Status500InternalServerError, "Unexpected error.");
         }
     }
+
 }

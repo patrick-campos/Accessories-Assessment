@@ -16,6 +16,7 @@ public sealed class CategoriesController : ControllerBase
         [FromQuery] string countryISOCode,
         [FromQuery] bool hasAvailableBuyer,
         [FromServices] GetCategories useCase,
+        [FromServices] ILogger<CategoriesController> logger,
         CancellationToken cancellationToken)
     {
         try
@@ -31,8 +32,9 @@ public sealed class CategoriesController : ControllerBase
         {
             return BadRequest(exception.Message);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            logger.LogError(exception, "Unexpected error while fetching categories.");
             return StatusCode(StatusCodes.Status500InternalServerError, "Unexpected error.");
         }
     }
@@ -42,6 +44,7 @@ public sealed class CategoriesController : ControllerBase
     public async Task<ActionResult<ListResponse<AttributeDto>>> GetAttributesAsync(
         [FromRoute] string id,
         [FromServices] GetCategoryAttributes useCase,
+        [FromServices] ILogger<CategoriesController> logger,
         CancellationToken cancellationToken)
     {
         try
@@ -57,8 +60,9 @@ public sealed class CategoriesController : ControllerBase
         {
             return BadRequest(exception.Message);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            logger.LogError(exception, "Unexpected error while fetching category attributes.");
             return StatusCode(StatusCodes.Status500InternalServerError, "Unexpected error.");
         }
     }

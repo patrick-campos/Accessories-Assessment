@@ -15,6 +15,7 @@ public sealed class FilesController : ControllerBase
     public async Task<ActionResult<FileUploadResponse>> UploadAsync(
         [FromForm] IFormFile file,
         [FromServices] SaveFile useCase,
+        [FromServices] ILogger<FilesController> logger,
         CancellationToken cancellationToken)
     {
         try
@@ -37,8 +38,9 @@ public sealed class FilesController : ControllerBase
         {
             return BadRequest(exception.Message);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            logger.LogError(exception, "Unexpected error while uploading file.");
             return StatusCode(StatusCodes.Status500InternalServerError, "Unexpected error.");
         }
     }
@@ -48,6 +50,7 @@ public sealed class FilesController : ControllerBase
     public async Task<ActionResult> DeleteAsync(
         [FromRoute] string id,
         [FromServices] DeleteFile useCase,
+        [FromServices] ILogger<FilesController> logger,
         CancellationToken cancellationToken)
     {
         try
@@ -63,9 +66,11 @@ public sealed class FilesController : ControllerBase
         {
             return BadRequest(exception.Message);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            logger.LogError(exception, "Unexpected error while deleting file.");
             return StatusCode(StatusCodes.Status500InternalServerError, "Unexpected error.");
         }
     }
+
 }

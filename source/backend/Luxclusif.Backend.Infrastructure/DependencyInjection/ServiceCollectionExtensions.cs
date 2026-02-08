@@ -24,6 +24,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IClock, SystemClock>();
         services.AddScoped<IFileStorageService, GoogleDriveFileStorageService>();
         services.AddScoped<ISpreadsheetService, GoogleSheetService>();
+        services.AddSingleton<GoogleApiClientFactory>();
         services.Configure<GoogleDriveOptions>(configuration.GetSection("GoogleDrive"));
         services.Configure<GoogleSheetOptions>(configuration.GetSection("GoogleSheet"));
 

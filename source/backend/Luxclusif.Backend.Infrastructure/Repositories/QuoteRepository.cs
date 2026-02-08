@@ -4,6 +4,7 @@ using Luxclusif.Backend.Application.Dtos;
 using Luxclusif.Backend.Domain.Entities;
 using Luxclusif.Backend.Infrastructure.Commands;
 using Luxclusif.Backend.Infrastructure.Database;
+using Npgsql;
 
 namespace Luxclusif.Backend.Infrastructure.Repositories;
 
@@ -215,9 +216,15 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
         IReadOnlyCollection<QuoteRow> quotes,
         QuoteDetails details)
     {
-        var categoryLookup = details.Categories.ToDictionary(entry => entry.Id, entry => entry.Name);
-        var brandLookup = details.Brands.ToDictionary(entry => entry.Id, entry => entry.Name);
-        var customerLookup = details.Customers.ToDictionary(entry => entry.QuoteId);
+        var categoryLookup = details.Categories
+            .GroupBy(entry => entry.Id)
+            .ToDictionary(group => group.Key, group => group.First().Name);
+        var brandLookup = details.Brands
+            .GroupBy(entry => entry.Id)
+            .ToDictionary(group => group.Key, group => group.First().Name);
+        var customerLookup = details.Customers
+            .GroupBy(entry => entry.QuoteId)
+            .ToDictionary(group => group.Key, group => group.First());
         var quoteLookup = quotes.ToDictionary(quote => quote.Id);
 
         var attributeValueLookup = details.AttributeValues
@@ -242,7 +249,7 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
             .ToDictionary(group => group.Key, group => group
                 .Select(file => new QuoteListFileDto(
                     file.Id.ToString(),
-                    file.Location,
+                    ResolveFileLocation(file),
                     new QuoteListFileMetadataDto(file.PhotoType, file.Description ?? string.Empty, file.PhotoSubtype)))
                 .ToList());
 
@@ -381,10 +388,28 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
         Guid ValueId,
         string Label);
 
+    private static string ResolveFileLocation(ItemFileRow file)
+    {
+        if (!string.IsNullOrWhiteSpace(file.Location))
+        {
+            return file.Location;
+        }
+
+        if (!string.IsNullOrWhiteSpace(file.UploadLocation))
+        {
+            return file.UploadLocation;
+        }
+
+        return string.Empty;
+    }
+
     private sealed record ItemFileRow(
         Guid Id,
         Guid ItemId,
-        string Location,
+        string? ExternalId,
+        string? Location,
+        string? UploadExternalId,
+        string? UploadLocation,
         string PhotoType,
         string PhotoSubtype,
         string? Description);

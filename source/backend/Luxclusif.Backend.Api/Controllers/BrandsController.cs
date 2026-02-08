@@ -16,6 +16,7 @@ public sealed class BrandsController : ControllerBase
         [FromQuery] string countryIsoCode,
         [FromQuery] bool hasAvailableBuyer,
         [FromServices] GetBrands useCase,
+        [FromServices] ILogger<BrandsController> logger,
         CancellationToken cancellationToken)
     {
         try
@@ -31,8 +32,9 @@ public sealed class BrandsController : ControllerBase
         {
             return BadRequest(exception.Message);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            logger.LogError(exception, "Unexpected error while fetching brands.");
             return StatusCode(StatusCodes.Status500InternalServerError, "Unexpected error.");
         }
     }

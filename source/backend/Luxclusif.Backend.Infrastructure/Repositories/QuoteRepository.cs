@@ -148,7 +148,7 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
 
             var quoteIds = quotes.Select(quote => quote.Id).ToArray();
 
-            var customers = (await connection.QueryAsync<CustomerRow>(
+            var multi = await connection.QueryMultipleAsync(
                 """
                 SELECT id AS Id,
                        quote_id AS QuoteId,
@@ -157,13 +157,8 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
                        last_name AS LastName,
                        email AS Email
                 FROM customers
-                WHERE quote_id = ANY(@QuoteIds)
-                """,
-                new { QuoteIds = quoteIds },
-                transaction)).ToList();
+                WHERE quote_id = ANY(@QuoteIds);
 
-            var items = (await connection.QueryAsync<ItemRow>(
-                """
                 SELECT id AS Id,
                        quote_id AS QuoteId,
                        category_id AS CategoryId,
@@ -171,69 +166,60 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
                        model AS Model,
                        description AS Description
                 FROM items
-                WHERE quote_id = ANY(@QuoteIds)
-                """,
-                new { QuoteIds = quoteIds },
-                transaction)).ToList();
+                WHERE quote_id = ANY(@QuoteIds);
 
-            var itemIds = items.Select(item => item.Id).ToArray();
-
-            var itemAttributes = (await connection.QueryAsync<ItemAttributeRow>(
-                """
                 SELECT ia.id AS Id,
                        ia.item_id AS ItemId,
                        ia.attribute_id AS AttributeId,
                        ca.name AS AttributeName
                 FROM item_attributes ia
+                JOIN items i ON i.id = ia.item_id
                 JOIN category_attributes ca ON ca.id = ia.attribute_id
-                WHERE ia.item_id = ANY(@ItemIds)
+                WHERE i.quote_id = ANY(@QuoteIds);
+
+                SELECT iav.item_attribute_id AS ItemAttributeId,
+                       iav.value_id AS ValueId,
+                       iav.label AS Label
+                FROM item_attribute_values iav
+                JOIN item_attributes ia ON ia.id = iav.item_attribute_id
+                JOIN items i ON i.id = ia.item_id
+                WHERE i.quote_id = ANY(@QuoteIds);
+
+                SELECT f.id AS Id,
+                       f.item_id AS ItemId,
+                       f.location AS Location,
+                       f.photo_type AS PhotoType,
+                       f.photo_subtype AS PhotoSubtype,
+                       f.description AS Description
+                FROM item_files f
+                JOIN items i ON i.id = f.item_id
+                WHERE i.quote_id = ANY(@QuoteIds);
+
+                SELECT c.id AS Id, c.name AS Name
+                FROM categories c
+                JOIN items i ON i.category_id = c.id
+                WHERE i.quote_id = ANY(@QuoteIds);
+
+                SELECT b.id AS Id, b.name AS Name
+                FROM brands b
+                JOIN items i ON i.brand_id = b.id
+                WHERE i.quote_id = ANY(@QuoteIds);
                 """,
-                new { ItemIds = itemIds },
-                transaction)).ToList();
+                new { QuoteIds = quoteIds },
+                transaction);
 
-            var itemAttributeIds = itemAttributes.Select(attribute => attribute.Id).ToArray();
-
-            var attributeValues = (await connection.QueryAsync<ItemAttributeValueRow>(
-                """
-                SELECT item_attribute_id AS ItemAttributeId,
-                       value_id AS ValueId,
-                       label AS Label
-                FROM item_attribute_values
-                WHERE item_attribute_id = ANY(@ItemAttributeIds)
-                """,
-                new { ItemAttributeIds = itemAttributeIds },
-                transaction)).ToList();
-
-            var files = (await connection.QueryAsync<ItemFileRow>(
-                """
-                SELECT id AS Id,
-                       item_id AS ItemId,
-                       location AS Location,
-                       photo_type AS PhotoType,
-                       photo_subtype AS PhotoSubtype,
-                       description AS Description
-                FROM item_files
-                WHERE item_id = ANY(@ItemIds)
-                """,
-                new { ItemIds = itemIds },
-                transaction)).ToList();
-
-            var categoryIds = items.Select(item => item.CategoryId).Distinct().ToArray();
-            var brandIds = items.Select(item => item.BrandId).Distinct().ToArray();
-
-            var categories = (await connection.QueryAsync<LookupRow>(
-                "SELECT id AS Id, name AS Name FROM categories WHERE id = ANY(@Ids)",
-                new { Ids = categoryIds },
-                transaction)).ToList();
-
-            var brands = (await connection.QueryAsync<LookupRow>(
-                "SELECT id AS Id, name AS Name FROM brands WHERE id = ANY(@Ids)",
-                new { Ids = brandIds },
-                transaction)).ToList();
+            var customers = (await multi.ReadAsync<CustomerRow>()).ToList();
+            var items = (await multi.ReadAsync<ItemRow>()).ToList();
+            var itemAttributes = (await multi.ReadAsync<ItemAttributeRow>()).ToList();
+            var attributeValues = (await multi.ReadAsync<ItemAttributeValueRow>()).ToList();
+            var files = (await multi.ReadAsync<ItemFileRow>()).ToList();
+            var categories = (await multi.ReadAsync<LookupRow>()).ToList();
+            var brands = (await multi.ReadAsync<LookupRow>()).ToList();
 
             var categoryLookup = categories.ToDictionary(entry => entry.Id, entry => entry.Name);
             var brandLookup = brands.ToDictionary(entry => entry.Id, entry => entry.Name);
             var customerLookup = customers.ToDictionary(entry => entry.QuoteId);
+            var quoteLookup = quotes.ToDictionary(quote => quote.Id);
 
             var attributeValueLookup = attributeValues
                 .GroupBy(value => value.ItemAttributeId)
@@ -274,7 +260,7 @@ public sealed class QuoteRepository : RepositoryBase, IQuoteRepository
                     var categoryName = categoryLookup.TryGetValue(item.CategoryId, out var name) ? name : string.Empty;
                     var brandName = brandLookup.TryGetValue(item.BrandId, out var brand) ? brand : string.Empty;
 
-                    var itemCreatedAt = quotes.First(quote => quote.Id == item.QuoteId).CreatedAt;
+                    var itemCreatedAt = quoteLookup[item.QuoteId].CreatedAt;
                     var itemCreatedAtOffset = new DateTimeOffset(DateTime.SpecifyKind(itemCreatedAt, DateTimeKind.Utc));
 
                     return new QuoteListItemDetailDto(

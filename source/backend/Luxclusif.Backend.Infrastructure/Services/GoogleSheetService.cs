@@ -38,8 +38,8 @@ public sealed class GoogleSheetService : ISpreadsheetService
 
         var sheetName = string.IsNullOrWhiteSpace(_options.SheetName) ? "Quotes" : _options.SheetName;
         var range = string.IsNullOrWhiteSpace(sheetName)
-            ? "A:Q"
-            : $"{sheetName}!A:Q";
+            ? "A:K"
+            : $"{sheetName}!A:K";
 
         var lookups = await BuildLookupsAsync(quote, cancellationToken);
         await EnsureHeaderAsync(sheetName, cancellationToken);
@@ -67,8 +67,6 @@ public sealed class GoogleSheetService : ISpreadsheetService
         "CreatedAt",
         "CountryOfOrigin",
         "CustomerEmail",
-        "ItemsCount",
-        "ItemIndex",
         "CategoryName",
         "BrandName",
         "Model",
@@ -81,7 +79,7 @@ public sealed class GoogleSheetService : ISpreadsheetService
 
     private async Task EnsureHeaderAsync(string sheetName, CancellationToken cancellationToken)
     {
-        var range = $"{sheetName}!A1:Q1";
+        var range = $"{sheetName}!A1:K1";
         var response = await _sheetsService.Spreadsheets.Values.Get(_options.SpreadsheetId, range)
             .ExecuteAsync(cancellationToken);
 
@@ -175,10 +173,8 @@ public sealed class GoogleSheetService : ISpreadsheetService
     private static List<IList<object>> BuildRows(Quote quote, LookupData lookups)
     {
         var rows = new List<IList<object>>();
-        var itemIndex = 0;
         foreach (var item in quote.Items)
         {
-            itemIndex += 1;
             var categoryName = lookups.Categories.TryGetValue(item.CategoryId, out var catName) ? catName : string.Empty;
             var brandName = lookups.Brands.TryGetValue(item.BrandId, out var brName) ? brName : string.Empty;
 
@@ -196,8 +192,6 @@ public sealed class GoogleSheetService : ISpreadsheetService
                 quote.CreatedAt.ToString("O"),
                 quote.CountryOfOriginIsoCode,
                 quote.Customer.Email,
-                quote.Items.Count,
-                itemIndex,
                 categoryName,
                 brandName,
                 item.Model,

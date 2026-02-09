@@ -9,24 +9,29 @@ namespace Luxclusif.Backend.Api.Controllers;
 [Route("file")]
 public sealed class FilesController : ControllerBase
 {
+    public sealed class FileUploadForm
+    {
+        public IFormFile? File { get; init; }
+    }
+
     [HttpPost]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(FileUploadResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<FileUploadResponse>> UploadAsync(
-        [FromForm] IFormFile file,
+        [FromForm] FileUploadForm form,
         [FromServices] SaveFile useCase,
         [FromServices] ILogger<FilesController> logger,
         CancellationToken cancellationToken)
     {
         try
         {
-            if (file is null)
+            if (form.File is null)
             {
                 return BadRequest("file is required.");
             }
 
-            await using var stream = file.OpenReadStream();
-            var request = new FileUploadRequest(file.FileName, file.ContentType ?? "application/octet-stream", stream);
+            await using var stream = form.File.OpenReadStream();
+            var request = new FileUploadRequest(form.File.FileName, form.File.ContentType ?? "application/octet-stream", stream);
             var response = await useCase.ExecuteAsync(request, cancellationToken);
             return Ok(response);
         }

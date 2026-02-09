@@ -1,6 +1,6 @@
-import type { FormSchema } from "./schema";
-import type { ItemDetails, PhotoSlot, UserDetails } from "./quoteRequestTypes";
-import { defaultSchema } from "./schema";
+import type { FormSchema } from "../schema";
+import type { ItemDetails, PhotoSlot, UserDetails } from "../types/quoteRequestTypes";
+import { defaultSchema } from "../schema";
 
 const photoSlots: PhotoSlot[] = ["front", "back", "bottom", "interior"];
 

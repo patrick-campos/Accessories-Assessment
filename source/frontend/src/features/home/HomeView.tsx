@@ -4,6 +4,7 @@ import { DefaultText } from "@/shared/ui/DefaultText";
 import { TitleText } from "@/shared/ui/Title";
 import { routes } from "@/features/pages/routes";
 import { useRouter } from "next/router";
+import { Footer } from "@/shared/ui/footer";
 
 export function HomeView(): JSX.Element {
 
@@ -14,7 +15,7 @@ export function HomeView(): JSX.Element {
     }
 
     return (
-        <section className="h-screen w-screen">
+        <section className="min-h-screen w-screen">
             <div>
                 <MasterHeader className="border-none" />
                 <div className="w-full bg-[#f4f4f4] px-md py-[1.2rem]">
@@ -36,6 +37,7 @@ export function HomeView(): JSX.Element {
                     <Button onClick={NavigateToQuote} className=" rounded-xs h-[4.4rem] w-[14%] mx-auto text-subtitle p-[1.1rem] max-sm:w-[30%]" variant={'outline'}> Start selling</Button>
                 </div>
             </ContentContainer>
+            <Footer/>
         </section>
     )
 }

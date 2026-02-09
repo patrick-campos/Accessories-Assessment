@@ -2,8 +2,8 @@ import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { RestClient } from "@/shared/api";
 import { defaultSchema, type FormSchema } from "../schema";
-import type { DynamicQuestion, ItemDetails } from "../quoteRequestTypes";
-import { normalizeSchema } from "../quoteRequestUtils";
+import type { DynamicQuestion, ItemDetails } from "../types/quoteRequestTypes";
+import { normalizeSchema } from "./quoteRequestUtils";
 
 type ListResponse<T> = { items: T[] };
 type EntriesResponse<T> = { entries: T[] };

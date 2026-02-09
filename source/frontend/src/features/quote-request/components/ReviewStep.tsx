@@ -1,5 +1,5 @@
 import { InformationSection } from "@/shared/ui/InformationSection";
-import type { ItemDetails } from "../quoteRequestTypes";
+import type { ItemDetails } from "../types/quoteRequestTypes";
 import type { FormSchema } from "../schema";
 import { VerticalTableHeader } from "@/shared/ui/VerticalTableHeader";
 
@@ -31,7 +31,7 @@ export function ReviewStep({
         {[...Object.values(item.photos).map((photo) => photo.previewUrl), ...item.additionalPhotos.map((photo) => photo.previewUrl)]
           .filter((photo): photo is string => Boolean(photo))
           .map((photo, index) => (
-            <div className="flex justify-center w-full h-full">
+            <div key={`${item.id}-photo-${index}`} className="flex justify-center w-full h-full">
               <img className="w-[10rem] h-[10rem]" src={`${photo}`} />
             </div>
           ))}
@@ -52,7 +52,7 @@ export function ReviewStep({
     <section className="[&>*:not(:last-child)]:border-b">
       {items.map((item) => {
         return (
-          <div>
+          <div key={item.id}>
             <InformationSection
               Title={"Your Item details"}
               Item={TransformItemToRecord(item)}

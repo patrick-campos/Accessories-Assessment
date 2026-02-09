@@ -1,4 +1,4 @@
-import type { DynamicQuestion, ItemDetails, UploadedPhotoSlot } from "../quoteRequestTypes";
+import type { DynamicQuestion, ItemDetails, UploadedPhotoSlot } from "../types/quoteRequestTypes";
 import { Input, SelectSearchable } from "@/shared/ui";
 import { cn } from "@/shared/lib/cn";
 import { DefaultText } from "@/shared/ui/DefaultText";

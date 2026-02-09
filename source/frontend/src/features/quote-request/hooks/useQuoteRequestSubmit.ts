@@ -1,7 +1,7 @@
 import * as React from "react";
 import { RestClient } from "@/shared/api";
-import type { DynamicQuestion, ItemDetails, PhotoSlot, UserDetails } from "../quoteRequestTypes";
-import { getPhotoSlots } from "../quoteRequestUtils";
+import type { DynamicQuestion, ItemDetails, PhotoSlot, UserDetails } from "../types/quoteRequestTypes";
+import { getPhotoSlots } from "./quoteRequestUtils";
 
 export function useQuoteRequestSubmit({
   apiOrigin,
@@ -58,7 +58,7 @@ export function useQuoteRequestSubmit({
           attributes.push({
             id: attribute.id,
             values: values.map((value) => ({
-              id: `${attribute.id}:${value}`,
+              id: value,
               label: optionLookup.get(value) ?? value,
             })),
           });

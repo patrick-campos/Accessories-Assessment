@@ -1,8 +1,8 @@
 import * as React from "react";
 import { QuoteRequestView } from "./QuoteRequestView";
 import { useRouter } from "next/router";
-import type { ItemDetails, UserDetails } from "./quoteRequestTypes";
-import { arePhotosComplete, createEmptyItem, isDetailsComplete, isUserComplete, upsertItem } from "./quoteRequestUtils";
+import type { ItemDetails, UserDetails } from "./types/quoteRequestTypes";
+import { arePhotosComplete, createEmptyItem, isDetailsComplete, isUserComplete, upsertItem } from "./hooks/quoteRequestUtils";
 import { useQuoteRequestQueries } from "./hooks/useQuoteRequestQueries";
 import { useQuoteRequestUploads } from "./hooks/useQuoteRequestUploads";
 import { useQuoteRequestSubmit } from "./hooks/useQuoteRequestSubmit";

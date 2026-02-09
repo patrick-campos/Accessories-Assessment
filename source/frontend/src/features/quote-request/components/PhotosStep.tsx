@@ -1,6 +1,6 @@
 import { TitleText } from "@/shared/ui/Title";
 import * as React from "react";
-import type { DynamicQuestion, ItemDetails } from "../quoteRequestTypes";
+import type { DynamicQuestion, ItemDetails } from "../types/quoteRequestTypes";
 import { cn } from "@/shared/lib/cn";
 import { DefaultText } from "@/shared/ui/DefaultText";
 import { IMGSelector } from "../../../shared/ui/ImgSelector";
@@ -55,51 +55,6 @@ function PhotoSlotCard({
      </div>
   );
 }
-
-/*
-
- <div className="relative">
-        {preview ? (
-          <div className={cardClasses}>
-            <img src={preview} alt={label} className="h-full w-full rounded-2xl object-cover" />
-            <RequiredHint isMissing={isMissing} />
-          </div>
-        ) : (
-          <label className={cardClasses}>
-            <span>Click to upload</span>
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              ref={inputRef}
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (!file) return;
-                onSelect(file);
-              }}
-            />
-            <RequiredHint isMissing={isMissing} />
-          </label>
-        )}
-        {preview ? (
-          <button
-            type="button"
-            className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink/70 text-mist"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              handleRemove(event);
-            }}
-          >
-            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-              <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8zM7 10h2v8H7v-8z" />
-            </svg>
-          </button>
-        ) : null}
-      </div>
-      <span className="text-normal text-[1.1rem]">{label}</span>
-    </div>
-  */
 
 function PhotoSlotsGrid({
   item,
@@ -179,18 +134,18 @@ export function PhotosStep({
         <DefaultText className="mt-[1.2rem] text-secondaryTitle">You'll need to add photos of any wear and damage. Make sure to include any hardware,
           'made in' tags and serial numbers. You can add up to 16 photos â€“ the more you provide,
           the more accurate your quote.</DefaultText>
-        <DynamicPhotoSlots
-          attributes={dynamicAttributes}
-          item={item}
-          showErrors={showErrors}
-          onUpdateDynamicPhoto={onUpdateDynamicPhoto}
-        />
         <DynamicImagesSelect
           images={item.additionalPhotos}
           onAddImage={onAddAdditionalPhoto}
           onRemoveImage={onRemoveAdditionalPhoto}
         />
       </div>
+      <DynamicPhotoSlots
+        attributes={dynamicAttributes}
+        item={item}
+        showErrors={showErrors}
+        onUpdateDynamicPhoto={onUpdateDynamicPhoto}
+      />
 
       <div className="pt-8">
         <TitleText className="font-normal text-secondaryTitle font-bold">Important information</TitleText>
@@ -231,3 +186,5 @@ function DynamicPhotoSlots({
     </div>
   );
 }
+
+

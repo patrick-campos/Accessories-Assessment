@@ -1,4 +1,4 @@
-import type { DynamicQuestion, ItemDetails } from "../quoteRequestTypes";
+import type { DynamicQuestion, ItemDetails } from "../types/quoteRequestTypes";
 import type { FormSchema } from "../schema";
 import { Input, SelectSearchable, Textarea } from "@/shared/ui";
 import { DynamicQuestion as DynamicQuestionField } from "./DynamicQuestion";

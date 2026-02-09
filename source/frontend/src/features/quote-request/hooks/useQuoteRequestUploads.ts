@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { ItemDetails, PhotoSlot } from "../quoteRequestTypes";
+import type { ItemDetails, PhotoSlot } from "../types/quoteRequestTypes";
 
 export function useQuoteRequestUploads({
   apiOrigin,

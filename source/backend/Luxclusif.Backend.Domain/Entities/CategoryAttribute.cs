@@ -20,7 +20,10 @@ public sealed class CategoryAttribute
         DomainValidation.Required(key, nameof(key));
         DomainValidation.Required(businessModel, nameof(businessModel));
         DomainValidation.Required(options, nameof(options));
-        DomainValidation.NotEmpty(options, nameof(options));
+        if (type != AttributeType.Photo)
+        {
+            DomainValidation.NotEmpty(options, nameof(options));
+        }
 
         Id = id;
         Name = name.Trim();

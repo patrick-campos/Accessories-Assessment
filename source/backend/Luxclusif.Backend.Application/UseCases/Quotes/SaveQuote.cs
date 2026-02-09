@@ -2,6 +2,7 @@ using Luxclusif.Backend.Application.Abstractions.Repositories;
 using Luxclusif.Backend.Application.Abstractions.Services;
 using Luxclusif.Backend.Application.Dtos;
 using Luxclusif.Backend.Domain.Entities;
+using System.Linq;
 
 namespace Luxclusif.Backend.Application.UseCases.Quotes;
 
@@ -40,7 +41,8 @@ public sealed class SaveQuote
             request.CustomerInformation.LastName,
             request.CustomerInformation.Email);
 
-        var items = new List<Item>();
+        var quotes = new List<Quote>();
+
         foreach (var item in request.Items)
         {
             var attributes = item.Attributes.Select(attribute => new ItemAttribute(
@@ -54,28 +56,32 @@ public sealed class SaveQuote
                 files.Add(await BuildItemFileAsync(file, cancellationToken));
             }
 
-            items.Add(new Item(
+            var quoteItem = new Item(
                 item.CategoryId,
                 item.BrandId,
                 item.Model,
                 item.Description,
                 attributes,
-                files));
+                files);
+
+            quotes.Add(new Quote(
+                Guid.NewGuid().ToString(),
+                request.CountryOfOrigin,
+                customer,
+                new List<Item> { quoteItem }));
         }
 
-        var quote = new Quote(
-            Guid.NewGuid().ToString(),
-            request.CountryOfOrigin,
-            customer,
-            items);
-
-        await _unitOfWork.ExecuteAsync(async ct =>
+        foreach (var quote in quotes)
         {
-            await _quoteRepository.SaveAsync(quote, ct);
-            await _spreadsheetService.AppendQuoteAsync(quote, ct);
-        }, cancellationToken);
+            await _unitOfWork.ExecuteAsync(async ct =>
+            {
+                await _quoteRepository.SaveAsync(quote, ct);
+                await _spreadsheetService.AppendQuoteAsync(quote, ct);
+            }, cancellationToken);
+        }
 
-        return new QuoteResponse(quote.Id);
+        var firstQuoteId = quotes.FirstOrDefault()?.Id ?? string.Empty;
+        return new QuoteResponse(firstQuoteId);
     }
 
     private async Task<ItemFile> BuildItemFileAsync(QuoteItemFileDto file, CancellationToken cancellationToken)

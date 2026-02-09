@@ -3,5 +3,6 @@ namespace Luxclusif.Backend.Domain.Enums;
 public enum AttributeType
 {
     OneOf = 1,
-    AnyOf = 2
+    AnyOf = 2,
+    Photo = 3
 }

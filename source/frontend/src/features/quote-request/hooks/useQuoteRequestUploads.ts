@@ -22,6 +22,47 @@ export function useQuoteRequestUploads({
   const startUpload = React.useCallback(() => setUploadingCount((prev) => prev + 1), []);
   const finishUpload = React.useCallback(() => setUploadingCount((prev) => Math.max(prev - 1, 0)), []);
 
+  const revokePreview = React.useCallback((previewUrl?: string | null) => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+  }, []);
+
+  const uploadFile = React.useCallback(
+    async (file: File) => {
+      if (!uploadEndpoint) {
+        return null;
+      }
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch(uploadEndpoint, {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+      const data = (await response.json()) as { fileId: string };
+      return { fileId: data.fileId, previewUrl: URL.createObjectURL(file) };
+    },
+    [uploadEndpoint]
+  );
+
+  const withUpload = React.useCallback(
+    async <T,>(operation: () => Promise<T>) => {
+      try {
+        startUpload();
+        return await operation();
+      } catch (error) {
+        setSubmitState("error");
+        return null;
+      } finally {
+        finishUpload();
+      }
+    },
+    [finishUpload, setSubmitState, startUpload]
+  );
+
   const deleteFile = React.useCallback(
     async (fileId: string | null) => {
       if (!fileId || !uploadEndpoint) return;
@@ -43,10 +84,7 @@ export function useQuoteRequestUploads({
           await deleteFile(previousFileId);
         }
         setDraftItem((prev) => {
-          const existing = prev.photos[slot]?.previewUrl;
-          if (existing) {
-            URL.revokeObjectURL(existing);
-          }
+          revokePreview(prev.photos[slot]?.previewUrl);
           return {
             ...prev,
             photos: { ...prev.photos, [slot]: { previewUrl: null, fileId: null } },
@@ -54,39 +92,18 @@ export function useQuoteRequestUploads({
         });
         return;
       }
-      if (!uploadEndpoint) {
-        return;
-      }
-      try {
-        startUpload();
-        const formData = new FormData();
-        formData.append("file", file);
-        const response = await fetch(uploadEndpoint, {
-          method: "POST",
-          body: formData,
-        });
-        if (!response.ok) {
-          throw new Error("Upload failed");
-        }
-        const data = (await response.json()) as { fileId: string };
-        const url = URL.createObjectURL(file);
-        setDraftItem((prev) => {
-          const existing = prev.photos[slot]?.previewUrl;
-          if (existing) {
-            URL.revokeObjectURL(existing);
-          }
-          return {
-            ...prev,
-            photos: { ...prev.photos, [slot]: { previewUrl: url, fileId: data.fileId } },
-          };
-        });
-      } catch (error) {
-        setSubmitState("error");
-      } finally {
-        finishUpload();
-      }
+
+      const uploaded = await withUpload(() => uploadFile(file));
+      if (!uploaded) return;
+      setDraftItem((prev) => {
+        revokePreview(prev.photos[slot]?.previewUrl);
+        return {
+          ...prev,
+          photos: { ...prev.photos, [slot]: { previewUrl: uploaded.previewUrl, fileId: uploaded.fileId } },
+        };
+      });
     },
-    [clearValidationErrors, deleteFile, draftItem.photos, finishUpload, setDraftItem, setSubmitState, startUpload, uploadEndpoint]
+    [clearValidationErrors, deleteFile, draftItem.photos, revokePreview, setDraftItem, uploadFile, withUpload]
   );
 
   const updateDynamicPhoto = React.useCallback(
@@ -101,10 +118,7 @@ export function useQuoteRequestUploads({
           onDynamicPhotoRemoved(attributeId, previousFileId);
         }
         setDraftItem((prev) => {
-          const existing = prev.dynamicPhotos[attributeId]?.previewUrl;
-          if (existing) {
-            URL.revokeObjectURL(existing);
-          }
+          revokePreview(prev.dynamicPhotos[attributeId]?.previewUrl);
           return {
             ...prev,
             dynamicPhotos: {
@@ -115,94 +129,51 @@ export function useQuoteRequestUploads({
         });
         return;
       }
-      if (!uploadEndpoint) {
-        return;
-      }
-      try {
-        startUpload();
-        const formData = new FormData();
-        formData.append("file", file);
-        const response = await fetch(uploadEndpoint, {
-          method: "POST",
-          body: formData,
-        });
-        if (!response.ok) {
-          throw new Error("Upload failed");
-        }
-        const data = (await response.json()) as { fileId: string };
-        const url = URL.createObjectURL(file);
-        setDraftItem((prev) => {
-          const existing = prev.dynamicPhotos[attributeId]?.previewUrl;
-          if (existing) {
-            URL.revokeObjectURL(existing);
-          }
-          return {
-            ...prev,
-            dynamicPhotos: {
-              ...prev.dynamicPhotos,
-              [attributeId]: { previewUrl: url, fileId: data.fileId },
-            },
-          };
-        });
-      } catch (error) {
-        setSubmitState("error");
-      } finally {
-        finishUpload();
-      }
+
+      const uploaded = await withUpload(() => uploadFile(file));
+      if (!uploaded) return;
+      setDraftItem((prev) => {
+        revokePreview(prev.dynamicPhotos[attributeId]?.previewUrl);
+        return {
+          ...prev,
+          dynamicPhotos: {
+            ...prev.dynamicPhotos,
+            [attributeId]: { previewUrl: uploaded.previewUrl, fileId: uploaded.fileId },
+          },
+        };
+      });
     },
     [
       clearValidationErrors,
       deleteFile,
       draftItem.dynamicPhotos,
-      finishUpload,
       onDynamicPhotoRemoved,
+      revokePreview,
       setDraftItem,
-      setSubmitState,
-      startUpload,
-      uploadEndpoint,
+      uploadFile,
+      withUpload,
     ]
   );
 
   const addAdditionalPhoto = React.useCallback(
     async (file: File | null) => {
       clearValidationErrors();
-      if (!file || !uploadEndpoint) return;
-      try {
-        startUpload();
-        const formData = new FormData();
-        formData.append("file", file);
-        const response = await fetch(uploadEndpoint, {
-          method: "POST",
-          body: formData,
-        });
-        if (!response.ok) {
-          throw new Error("Upload failed");
-        }
-        const data = (await response.json()) as { fileId: string };
-        const url = URL.createObjectURL(file);
-        setDraftItem((prev) => ({
-          ...prev,
-          additionalPhotos: [...prev.additionalPhotos, { previewUrl: url, fileId: data.fileId }].slice(
-            0,
-            16
-          ),
-        }));
-      } catch (error) {
-        setSubmitState("error");
-      } finally {
-        finishUpload();
-      }
+      if (!file) return;
+      const uploaded = await withUpload(() => uploadFile(file));
+      if (!uploaded) return;
+      setDraftItem((prev) => ({
+        ...prev,
+        additionalPhotos: [...prev.additionalPhotos, uploaded].slice(0, 16),
+      }));
     },
-    [clearValidationErrors, finishUpload, setDraftItem, setSubmitState, startUpload, uploadEndpoint]
+    [clearValidationErrors, setDraftItem, uploadFile, withUpload]
   );
 
   const removeAdditionalPhoto = React.useCallback(
     (index: number) => {
       clearValidationErrors();
       const removed = draftItem.additionalPhotos[index];
-      if (removed?.previewUrl) {
-        URL.revokeObjectURL(removed.previewUrl);
-      }
+      revokePreview(removed?.previewUrl);
       void deleteFile(removed?.fileId ?? null);
       setDraftItem((prev) => {
         const clone = [...prev.additionalPhotos];
@@ -210,7 +181,7 @@ export function useQuoteRequestUploads({
         return { ...prev, additionalPhotos: clone };
       });
     },
-    [clearValidationErrors, deleteFile, draftItem.additionalPhotos, setDraftItem]
+    [clearValidationErrors, deleteFile, draftItem.additionalPhotos, revokePreview, setDraftItem]
   );
 
   return {

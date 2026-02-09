@@ -110,7 +110,7 @@ export function QuoteRequestView({
   const stepContent = stepViews[currentStep] ?? stepViews[0];
 
   return (
-    <section className="min-h-screen w-screen">
+    <section className="min-h-screen w-screen flex flex-col">
       <MasterHeader />
       {successModal}
       <ContentContainer>

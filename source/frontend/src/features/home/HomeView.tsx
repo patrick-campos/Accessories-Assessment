@@ -15,7 +15,7 @@ export function HomeView(): JSX.Element {
     }
 
     return (
-        <section className="min-h-screen w-screen">
+        <section className="min-h-screen w-screen flex flex-col">
             <div>
                 <MasterHeader className="border-none" />
                 <div className="w-full bg-[#f4f4f4] px-md py-[1.2rem]">

@@ -29,6 +29,13 @@ type AttributeDto = {
   businessModel: string;
 };
 
+function mapToOptions<T>(
+  items: T[] | undefined,
+  map: (item: T) => { value: string; label: string }
+) {
+  return items?.map(map) ?? [];
+}
+
 export function useQuoteRequestQueries(draftItem: ItemDetails) {
   const apiOrigin = React.useMemo(() => {
     const configuredOrigin = process.env.NEXT_PUBLIC_API_ORIGIN;
@@ -48,10 +55,9 @@ export function useQuoteRequestQueries(draftItem: ItemDetails) {
   const countriesQuery = useQuery({
     queryKey: ["countries", apiOrigin],
     queryFn: async () => {
-      if (!restClient) {
-        return { items: [] } satisfies ListResponse<CountryDto>;
-      }
-      return restClient.get<ListResponse<CountryDto>>("/countries");
+      return restClient
+        ? restClient.get<ListResponse<CountryDto>>("/countries")
+        : ({ items: [] } satisfies ListResponse<CountryDto>);
     },
     enabled: Boolean(restClient),
   });
@@ -104,7 +110,7 @@ export function useQuoteRequestQueries(draftItem: ItemDetails) {
     const attributes = attributesQuery.data?.items ?? [];
     type ParsedStage = DynamicQuestion["stage"];
 
-    function parseKey(value: string): { stage: ParsedStage; field: string; title: string } {
+    const parseKey = (value: string): { stage: ParsedStage; field: string; title: string } => {
       const parts = value.split(":");
       if (parts.length < 2) {
         return { stage: "unknown", field: "", title: "" };
@@ -123,10 +129,10 @@ export function useQuoteRequestQueries(draftItem: ItemDetails) {
       const normalizedStage: ParsedStage =
         stage === "item-details" || stage === "item-photos" ? stage : "unknown";
       return { stage: normalizedStage, field, title };
-    }
+    };
 
     return attributes.map((attribute) => {
-      const { stage, field, title } = parseKey(attribute.key);
+      const { stage, field } = parseKey(attribute.key);
       return {
         id: attribute.id,
         name: attribute.name,
@@ -161,21 +167,18 @@ export function useQuoteRequestQueries(draftItem: ItemDetails) {
   );
 
   const schema = React.useMemo<FormSchema>(() => {
-    const countries =
-      countriesQuery.data?.items.map((country) => ({
-        value: country.isoCode,
-        label: country.name,
-      })) ?? [];
-    const categories =
-      categoriesQuery.data?.items.map((category) => ({
-        value: category.id,
-        label: category.name,
-      })) ?? [];
-    const brands =
-      brandsQuery.data?.entries.map((brand) => ({
-        value: brand.id,
-        label: brand.name,
-      })) ?? [];
+    const countries = mapToOptions<CountryDto>(countriesQuery.data?.items, (country) => ({
+      value: country.isoCode,
+      label: country.name,
+    }));
+    const categories = mapToOptions<CategoryDto>(categoriesQuery.data?.items, (category) => ({
+      value: category.id,
+      label: category.name,
+    }));
+    const brands = mapToOptions<BrandDto>(brandsQuery.data?.entries, (brand) => ({
+      value: brand.id,
+      label: brand.name,
+    }));
 
     return normalizeSchema({
       steps: defaultSchema.steps,

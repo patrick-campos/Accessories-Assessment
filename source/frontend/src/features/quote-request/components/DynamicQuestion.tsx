@@ -145,9 +145,9 @@ function DynamicPhotoQuestion({
 
 function resolveChipClass(isActive: boolean) {
   if (isActive) {
-    return cn("rounded-full border px-4 py-2 text-xs font-semibold transition", "border-ink bg-ink text-mist");
+    return cn("rounded-xs border px-4 py-2 text-xs font-semibold transition", "border-ink bg-ink text-mist");
   }
-  return cn("rounded-full border px-4 py-2 text-xs font-semibold transition", "border-dune bg-mist text-ink");
+  return cn("rounded-xs border px-4 py-2 text-xs font-semibold transition", "border-dune bg-mist text-ink");
 }
 
 function DynamicError({ message }: { message?: string }) {

@@ -16,7 +16,7 @@ function SectionBody({ body }: { body: string | string[] }) {
     return (
       <ul className="list-disc space-y-2 pl-5 text-sm text-clay ">
         {body.map((item) => (
-          <li key={item}>{item}</li>
+          <li className="text-default text-secondaryTitle" key={item}>{item}</li>
         ))}
       </ul>
     );
@@ -27,7 +27,7 @@ function SectionBody({ body }: { body: string | string[] }) {
 function AuxiliarySection({ title, body }: { title?: string; body: string | string[] }) {
   return (
     <div>
-      <TitleText as='h3' className="font-bold text-secondaryTitle pb-[0.4rem] mb-0 max-lg:font-normal lg:font-bold">{title}</TitleText>
+      <TitleText as='h3' className="font-bold font-secondaryTitle pb-[0.4rem] mb-0 max-lg:font-normal lg:font-bold">{title}</TitleText>
       <SectionBody body={body} />
     </div>
   );

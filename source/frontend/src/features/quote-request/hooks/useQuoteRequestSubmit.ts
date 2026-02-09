@@ -43,28 +43,32 @@ export function useQuoteRequestSubmit({
         return;
       }
 
-      const buildAttributes = (item: ItemDetails) => {
-        const attributes: Array<{ id: string; values: Array<{ id: string; label: string }> }> = [];
-        detailAttributes.forEach((attribute) => {
-          const values = item.dynamicAttributes[attribute.id] ?? [];
-          if (values.length === 0) {
-            return;
-          }
-          const optionLookup = attribute.options.reduce((map, option) => {
-            map.set(option.id, option.label);
-            return map;
-          }, new Map<string, string>());
+      const optionLookupByAttribute = detailAttributes.reduce((map, attribute) => {
+        map.set(
+          attribute.id,
+          attribute.options.reduce((optionsMap, option) => {
+            optionsMap.set(option.id, option.label);
+            return optionsMap;
+          }, new Map<string, string>())
+        );
+        return map;
+      }, new Map<string, Map<string, string>>());
 
-          attributes.push({
-            id: attribute.id,
-            values: values.map((value) => ({
-              id: value,
-              label: optionLookup.get(value) ?? value,
-            })),
-          });
-        });
-        return attributes;
-      };
+      const buildAttributes = (item: ItemDetails) =>
+        detailAttributes
+          .map((attribute) => {
+            const values = item.dynamicAttributes[attribute.id] ?? [];
+            if (values.length === 0) return null;
+            const lookup = optionLookupByAttribute.get(attribute.id);
+            return {
+              id: attribute.id,
+              values: values.map((value) => ({
+                id: value,
+                label: lookup?.get(value) ?? value,
+              })),
+            };
+          })
+          .filter((entry): entry is { id: string; values: Array<{ id: string; label: string }> } => Boolean(entry));
 
       const filePayload = (fileId: string, subtype: string) => ({
         type: "Photos",
@@ -85,6 +89,27 @@ export function useQuoteRequestSubmit({
         interior: "Inside",
       };
 
+      const buildFixedPhotoFiles = (item: ItemDetails) =>
+        photoSlots
+          .map((slot) => {
+            const fileId = item.photos[slot].fileId;
+            if (!fileId) return null;
+            return filePayload(fileId, slotSubtypes[slot]);
+          })
+          .filter((entry): entry is ReturnType<typeof filePayload> => Boolean(entry));
+
+      const buildDynamicPhotoFiles = (item: ItemDetails) =>
+        photoAttributes
+          .map((attribute) => {
+            const fileId = item.dynamicPhotos[attribute.id]?.fileId;
+            if (!fileId) return null;
+            return filePayload(fileId, attribute.name || attribute.field || "Additional");
+          })
+          .filter((entry): entry is ReturnType<typeof filePayload> => Boolean(entry));
+
+      const buildAdditionalPhotoFiles = (item: ItemDetails) =>
+        item.additionalPhotos.map((photo) => filePayload(photo.fileId, "Additional"));
+
       await client.post(requestPath, {
         countryOfOrigin,
         customerInformation: {
@@ -100,21 +125,9 @@ export function useQuoteRequestSubmit({
           model: item.model,
           description: item.additionalInfo,
           files: [
-            ...photoSlots
-              .map((slot) => {
-                const fileId = item.photos[slot].fileId;
-                if (!fileId) return null;
-                return filePayload(fileId, slotSubtypes[slot]);
-              })
-              .filter((entry): entry is ReturnType<typeof filePayload> => Boolean(entry)),
-            ...photoAttributes
-              .map((attribute) => {
-                const fileId = item.dynamicPhotos[attribute.id]?.fileId;
-                if (!fileId) return null;
-                return filePayload(fileId, attribute.name || attribute.field || "Additional");
-              })
-              .filter((entry): entry is ReturnType<typeof filePayload> => Boolean(entry)),
-            ...item.additionalPhotos.map((photo) => filePayload(photo.fileId, "Additional")),
+            ...buildFixedPhotoFiles(item),
+            ...buildDynamicPhotoFiles(item),
+            ...buildAdditionalPhotoFiles(item),
           ],
         })),
       });

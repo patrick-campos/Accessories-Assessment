@@ -4,7 +4,7 @@ type ContentContainerProps = React.ComponentProps<"main">;
 
 export function ContentContainer({className, ...props}:ContentContainerProps):JSX.Element{
     return (
-        <main className={cn("w-full h-full", className)}>
+        <main className={cn("w-full min-h-full flex-1", className)}>
             {props.children}
         </main>
     )

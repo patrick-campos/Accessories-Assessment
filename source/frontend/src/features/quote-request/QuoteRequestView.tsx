@@ -11,6 +11,7 @@ import { TwoGridContainer } from "@/shared/ui/TwoGridContainer";
 import { ContainerStep } from "./components/ContainerStep";
 import { ButtonStep } from "./components/ButtonsStep";
 import { QuoteSuccessModal } from "./components/QuoteSuccessModal";
+import { ApiErrorModal } from "@/shared/ui/ApiErrorModal";
 import { Footer } from "@/shared/ui/footer";
 
 type Props = {
@@ -40,6 +41,7 @@ type Props = {
   onEditItem: (id: string) => void;
   onEditPhotos: (id: string) => void;
   onCloseSuccessModal: () => void;
+  onClearError: () => void;
   onRequestAnotherQuote: () => void;
   onMyQuotes: () => void;
 };
@@ -71,6 +73,7 @@ export function QuoteRequestView({
   onEditItem,
   onEditPhotos,
   onCloseSuccessModal,
+  onClearError,
   onRequestAnotherQuote,
   onMyQuotes,
 }: Props) {
@@ -86,6 +89,7 @@ export function QuoteRequestView({
       onMyQuotes={onMyQuotes}
     />
   );
+  const errorModal = <ApiErrorModal message={error} onClose={onClearError} />;
 
   const stepViews = buildQuoteRequestStepViews({
     schema,
@@ -112,8 +116,9 @@ export function QuoteRequestView({
   return (
     <section className="min-h-screen w-screen">
       <MasterHeader />
+      {errorModal}
       {successModal}
-      <ContentContainer>
+      <ContentContainer className="xl:min-h-[80.4vh]">
         <HeaderStep Items={schema.steps.map((item) => item.headerTitle)} CurrentIndexOfActiveItem={currentStep} />
         <TwoGridContainer className="w-full 2xl:w-[144rem] max-xl:m-auto">
           <ContainerStep className="space-y-6 lg:w-[60%] xl:[w-50%]">

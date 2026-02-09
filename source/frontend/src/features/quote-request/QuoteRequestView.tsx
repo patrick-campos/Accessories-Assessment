@@ -110,13 +110,13 @@ export function QuoteRequestView({
   const stepContent = stepViews[currentStep] ?? stepViews[0];
 
   return (
-    <section className="min-h-screen w-screen flex flex-col">
+    <section className="min-h-screen w-screen">
       <MasterHeader />
       {successModal}
       <ContentContainer>
         <HeaderStep Items={schema.steps.map((item) => item.headerTitle)} CurrentIndexOfActiveItem={currentStep} />
         <TwoGridContainer className="w-full 2xl:w-[144rem] max-xl:m-auto">
-          <ContainerStep className="space-y-6 lg:w-[50%]">
+          <ContainerStep className="space-y-6 lg:w-[60%] xl:[w-50%]">
             <div className="mb-lg">
               <TitleText className="font-normal text-title">{step?.inputTitle}</TitleText>
               <DefaultText className="mt-[1.2rem] text-subtitle">{step.inputSubtitle}</DefaultText>

@@ -66,7 +66,7 @@ function PhotoSlotsGrid({
   onUpdatePhoto: PhotosStepProps["onUpdatePhoto"];
 }) {
   return (
-    <div className="grid gap-4 max-sm:grid-cols-2 lg:grid-cols-4 max-lg:grid-cols-3">
+    <div className="grid gap-4 max-sm:grid-cols-2 xl:grid-cols-4 max-xl:grid-cols-3">
       {photoLabels.map((label) => {
         const slot = label.toLowerCase() as "front" | "back" | "bottom" | "interior";
         const preview = item.photos[slot].previewUrl;
@@ -100,7 +100,7 @@ function AdditionalPhotoGrid({
           <img src={photo.previewUrl} alt={`Additional ${index + 1}`} className="h-full w-full object-cover" />
           <button
             type="button"
-            className="absolute right-2 top-2 rounded-full bg-ink/70 px-2 py-1 text-[10px] text-mist"
+            className="absolute right-2 top-2 rounded-xs bg-ink/70 px-2 py-1 text-[10px] text-mist"
             onClick={() => onRemove(index)}
           >
             Remove

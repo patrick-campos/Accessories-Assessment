@@ -12,7 +12,7 @@ export function LoadingOverlay({ isVisible, className }: LoadingOverlayProps) {
 
   return (
     <div className={cn("fixed inset-0 z-50 flex items-center justify-center bg-black/20", className)}>
-      <div className="h-12 w-12 animate-spin rounded-full border-4 border-mist border-t-ink" />
+      <div className="h-12 w-12 animate-spin rounded-xs border-4 border-mist border-t-ink" />
     </div>
   );
 }

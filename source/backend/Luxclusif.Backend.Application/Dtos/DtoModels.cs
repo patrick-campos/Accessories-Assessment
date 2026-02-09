@@ -26,3 +26,5 @@ public sealed record AttributeDto(
 public sealed record FileUploadResponse(string FileId);
 
 public sealed record QuoteResponse(string QuoteId);
+
+public sealed record QuoteBatchResponse(IReadOnlyCollection<string> QuoteIds);

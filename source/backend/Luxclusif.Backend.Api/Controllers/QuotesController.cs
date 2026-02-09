@@ -38,8 +38,8 @@ public sealed class QuotesController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(QuoteResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<QuoteResponse>> CreateAsync(
+    [ProducesResponseType(typeof(QuoteBatchResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<QuoteBatchResponse>> CreateAsync(
         [FromBody] QuoteRequestDto request,
         [FromServices] SaveQuote useCase,
         [FromServices] ILogger<QuotesController> logger,
@@ -47,8 +47,19 @@ public sealed class QuotesController : ControllerBase
     {
         try
         {
-            var response = await useCase.ExecuteAsync(request, cancellationToken);
-            return Ok(response);
+            var responses = new List<string>();
+            foreach (var item in request.Items)
+            {
+                var singleRequest = new QuoteRequestDto(
+                    request.CountryOfOrigin,
+                    request.CustomerInformation,
+                    new List<QuoteItemDto> { item });
+
+                var response = await useCase.ExecuteAsync(singleRequest, cancellationToken);
+                responses.Add(response.QuoteId);
+            }
+
+            return Ok(new QuoteBatchResponse(responses));
         }
         catch (DomainException exception)
         {

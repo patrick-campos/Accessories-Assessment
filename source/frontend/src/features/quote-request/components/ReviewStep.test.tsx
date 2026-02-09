@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ItemDetails } from "../types/quoteRequestTypes";
+import type { DynamicQuestion, ItemDetails } from "../types/quoteRequestTypes";
 import type { FormSchema } from "../schema";
 import { ReviewStep } from "./ReviewStep";
 
@@ -26,10 +26,27 @@ const item: ItemDetails = {
     bottom: { previewUrl: null, fileId: null },
     interior: { previewUrl: null, fileId: null },
   },
-  dynamicAttributes: {},
+  dynamicAttributes: { "attr-1": ["small"] },
   dynamicPhotos: {},
   additionalPhotos: [{ previewUrl: "http://extra", fileId: "f2" }],
 };
+
+const detailAttributes: DynamicQuestion[] = [
+  {
+    id: "attr-1",
+    name: "Size",
+    key: "item-details.attributes.size",
+    stage: "item-details",
+    field: "size",
+    type: "single",
+    isRequired: false,
+    displayOrder: 1,
+    options: [
+      { id: "small", label: "Small" },
+      { id: "large", label: "Large" },
+    ],
+  },
+];
 
 describe("ReviewStep", () => {
   it("renders item details and images", () => {
@@ -37,6 +54,7 @@ describe("ReviewStep", () => {
       <ReviewStep
         items={[item]}
         schema={schema}
+        detailAttributes={detailAttributes}
         user={{ firstName: "A", lastName: "B", email: "a@b.com" }}
         showErrors={false}
         onUpdateUser={() => undefined}
@@ -48,6 +66,7 @@ describe("ReviewStep", () => {
     expect(screen.getByText("Your Item details")).toBeInTheDocument();
     expect(screen.getByText("Bags")).toBeInTheDocument();
     expect(screen.getByText("Chanel")).toBeInTheDocument();
+    expect(screen.getByText("Small")).toBeInTheDocument();
     expect(document.querySelector('img[src="http://front"]')).toBeTruthy();
     expect(document.querySelector('img[src="http://extra"]')).toBeTruthy();
   });
@@ -60,6 +79,7 @@ describe("ReviewStep", () => {
       <ReviewStep
         items={[item]}
         schema={schema}
+        detailAttributes={detailAttributes}
         user={{ firstName: "A", lastName: "B", email: "a@b.com" }}
         showErrors={false}
         onUpdateUser={() => undefined}

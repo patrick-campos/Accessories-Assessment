@@ -17,8 +17,6 @@ builder.Configuration
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
@@ -59,10 +57,9 @@ var swaggerEnabled = app.Configuration.GetValue("Swagger:Enabled", true);
 if (swaggerEnabled)
 {
     app.MapOpenApi();
-    app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Luxclusif Backend v1");
+        options.SwaggerEndpoint("/openapi/v1.json", "Luxclusif Backend v1");
     });
 }
 

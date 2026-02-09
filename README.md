@@ -31,6 +31,20 @@ Generate a refresh token using:
 .\scripts\get_google_refresh_token.ps1 -ClientSecretPath "C:\path\client_secret.json"
 ```
 
+## How to Get Drive Folder ID and Sheet ID
+**Google Drive folder ID**
+1. Open the folder in Google Drive.
+2. The URL looks like: `https://drive.google.com/drive/folders/<FOLDER_ID>`.
+3. Copy the `<FOLDER_ID>` and set it in `GoogleDrive__FolderId`.
+
+**Google Sheets spreadsheet ID**
+1. Open the spreadsheet in Google Sheets.
+2. The URL looks like: `https://docs.google.com/spreadsheets/d/<SPREADSHEET_ID>/edit#gid=...`.
+3. Copy the `<SPREADSHEET_ID>` and set it in `GoogleSheet__SpreadsheetId`.
+
+**Sheet tab name**
+- Use the tab name shown at the bottom of the sheet (e.g., `quote`) for `GoogleSheet__SheetName`.
+
 ## Environment Variables
 Backend **requires** Google variables configured to work correctly.
 Configure in `docker/backend.env`:

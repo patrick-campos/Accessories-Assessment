@@ -20,6 +20,7 @@ type StepViewsArgs = {
   onAddAdditionalPhoto: (file: File | null) => void;
   onRemoveAdditionalPhoto: (index: number) => void;
   uploadingTargets: Set<string>;
+  submitState: "idle" | "sending" | "error" | "success";
   onUpdateUser: (user: { firstName: string; lastName: string; email: string }) => void;
   onAddAnother: () => void;
   onEditItem: (id: string) => void;
@@ -41,6 +42,7 @@ export function buildQuoteRequestStepViews({
   onAddAdditionalPhoto,
   onRemoveAdditionalPhoto,
   uploadingTargets,
+  submitState,
   onUpdateUser,
   onAddAnother,
   onEditItem,
@@ -76,6 +78,7 @@ export function buildQuoteRequestStepViews({
         schema={schema}
         detailAttributes={detailAttributes}
         user={user}
+        submitState={submitState}
         showErrors={showErrors}
         onUpdateUser={onUpdateUser}
         onEditItem={onEditItem}

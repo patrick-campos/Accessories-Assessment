@@ -56,6 +56,7 @@ describe("ReviewStep", () => {
         schema={schema}
         detailAttributes={detailAttributes}
         user={{ firstName: "A", lastName: "B", email: "a@b.com" }}
+        submitState="idle"
         showErrors={false}
         onUpdateUser={() => undefined}
         onEditItem={() => undefined}
@@ -81,6 +82,7 @@ describe("ReviewStep", () => {
         schema={schema}
         detailAttributes={detailAttributes}
         user={{ firstName: "A", lastName: "B", email: "a@b.com" }}
+        submitState="idle"
         showErrors={false}
         onUpdateUser={() => undefined}
         onEditItem={onEditItem}

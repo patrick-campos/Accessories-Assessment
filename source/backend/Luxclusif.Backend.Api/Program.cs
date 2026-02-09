@@ -13,11 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .AddJsonFile("app.settings.json", optional: true, reloadOnChange: true)
     .AddJsonFile("app.settings.release.json", optional: true, reloadOnChange: true)
-    // Ensure env vars override local settings files (especially in containers).
     .AddEnvironmentVariables();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
@@ -58,6 +59,11 @@ var swaggerEnabled = app.Configuration.GetValue("Swagger:Enabled", true);
 if (swaggerEnabled)
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Luxclusif Backend v1");
+    });
 }
 
 app.MapControllers();

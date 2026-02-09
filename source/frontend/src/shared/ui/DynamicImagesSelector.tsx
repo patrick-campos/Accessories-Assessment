@@ -5,12 +5,14 @@ type DynamicImagesSelectProps = {
   images: Array<{ previewUrl: string }>;
   onAddImage: (file: File | null) => void;
   onRemoveImage: (index: number) => void;
+  isUploadingAdd?: boolean;
 };
 
 export function DynamicImagesSelect({
   images,
   onAddImage,
   onRemoveImage,
+  isUploadingAdd,
 }: DynamicImagesSelectProps): JSX.Element {
   function RenderImagesSelected(image: { previewUrl: string } | null, index: number): JSX.Element {
     if (!image) return <></>;
@@ -26,7 +28,7 @@ export function DynamicImagesSelect({
   return (
     <div className="grid flex-col w-full h-full max-sm:grid-cols-2 max-xl:grid-cols-3 xl:grid-cols-4 gap-3 max-lg:justify-between">
       {images?.map((image, index) => RenderImagesSelected(image, index))}
-      <IMGSelector OnSelect={onAddImage} MiddleLabel={"Click to upload"} />
+      <IMGSelector OnSelect={onAddImage} MiddleLabel={"Click to upload"} isUploading={isUploadingAdd} />
     </div>
   );
 }

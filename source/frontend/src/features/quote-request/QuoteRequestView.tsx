@@ -24,6 +24,7 @@ type Props = {
   user: { firstName: string; lastName: string; email: string };
   submitState: "idle" | "sending" | "error" | "success";
   isUploading: boolean;
+  uploadingTargets: Set<string>;
   showSuccessModal: boolean;
   detailAttributes: DynamicQuestion[];
   photoAttributes: DynamicQuestion[];
@@ -55,6 +56,7 @@ export function QuoteRequestView({
   user,
   submitState,
   isUploading,
+  uploadingTargets,
   showSuccessModal,
   detailAttributes,
   photoAttributes,
@@ -101,6 +103,7 @@ export function QuoteRequestView({
     onUpdateDynamicAttribute,
     onAddAdditionalPhoto,
     onRemoveAdditionalPhoto,
+    uploadingTargets,
     onUpdateUser,
     onAddAnother,
     onEditItem,

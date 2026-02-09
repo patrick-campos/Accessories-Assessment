@@ -10,6 +10,7 @@ import { DynamicQuestion as DynamicQuestionField } from "./DynamicQuestion";
 type PhotosStepProps = {
   item: ItemDetails;
   showErrors: boolean;
+  uploadingTargets?: Set<string>;
   onUpdatePhoto: (slot: "front" | "back" | "bottom" | "interior", file: File | null) => void;
   onUpdateDynamicPhoto: (attributeId: string, file: File | null) => void;
   dynamicAttributes: DynamicQuestion[];
@@ -29,11 +30,13 @@ function PhotoSlotCard({
   preview,
   isMissing,
   onSelect,
+  isUploading,
 }: {
   label: string;
   preview: string | null;
   isMissing: boolean;
   onSelect: (file: File | null) => void;
+  isUploading?: boolean;
 }) {
   const cardClasses = cn(
     "flex h-[15.5rem] w-[15.5rem] flex-col items-center justify-center gap-3 rounded-sm border-[0.1rem] border-dashed px-4 py-6 text-center text-xs text-clay max-lg:m-auto",
@@ -51,7 +54,7 @@ function PhotoSlotCard({
   }
   return (
     <div className="max-lg:m-auto">
-      <IMGSelector Label={label} OnSelect={onSelect} RemoveAction={handleRemove} IMGRef={preview} IsMissing={isMissing} MiddleLabel={"Click to upload"}/>
+      <IMGSelector Label={label} OnSelect={onSelect} RemoveAction={handleRemove} IMGRef={preview} IsMissing={isMissing} MiddleLabel={"Click to upload"} isUploading={isUploading} />
      </div>
   );
 }
@@ -60,10 +63,12 @@ function PhotoSlotsGrid({
   item,
   showErrors,
   onUpdatePhoto,
+  uploadingTargets,
 }: {
   item: ItemDetails;
   showErrors: boolean;
   onUpdatePhoto: PhotosStepProps["onUpdatePhoto"];
+  uploadingTargets?: Set<string>;
 }) {
   return (
     <div className="grid gap-4 max-sm:grid-cols-2 xl:grid-cols-4 max-xl:grid-cols-3">
@@ -71,6 +76,7 @@ function PhotoSlotsGrid({
         const slot = label.toLowerCase() as "front" | "back" | "bottom" | "interior";
         const preview = item.photos[slot].previewUrl;
         const isMissing = showErrors && !item.photos[slot].fileId;
+        const isSlotUploading = Boolean(uploadingTargets?.has(`photo:${slot}`));
         return (
           <PhotoSlotCard
             key={label}
@@ -78,6 +84,7 @@ function PhotoSlotsGrid({
             preview={preview}
             isMissing={isMissing}
             onSelect={(file) => onUpdatePhoto(slot, file)}
+            isUploading={isSlotUploading}
           />
         );
       })}
@@ -114,6 +121,7 @@ function AdditionalPhotoGrid({
 export function PhotosStep({
   item,
   showErrors,
+  uploadingTargets,
   onUpdatePhoto,
   onUpdateDynamicPhoto,
   dynamicAttributes,
@@ -126,18 +134,19 @@ export function PhotosStep({
         <TitleText className="font-normal text-heading">Photos of your item</TitleText>
         <DefaultText className="mt-[1.2rem] text-secondaryTitle">Please submit at least 4 photos of your item. Click one of photos below to upload your
           own. You can drag the photos to change their order or click to delete them.</DefaultText>
-        <PhotoSlotsGrid item={item} showErrors={showErrors} onUpdatePhoto={onUpdatePhoto} />
+        <PhotoSlotsGrid item={item} showErrors={showErrors} onUpdatePhoto={onUpdatePhoto} uploadingTargets={uploadingTargets} />
       </div>
 
       <div className="space-y-3">
         <TitleText className="font-normal text-heading">Additional photos</TitleText>
         <DefaultText className="mt-[1.2rem] text-secondaryTitle">You'll need to add photos of any wear and damage. Make sure to include any hardware,
-          'made in' tags and serial numbers. You can add up to 16 photos â€“ the more you provide,
+          'made in' tags and serial numbers. You can add up to 16 photos - the more you provide,
           the more accurate your quote.</DefaultText>
         <DynamicImagesSelect
           images={item.additionalPhotos}
           onAddImage={onAddAdditionalPhoto}
           onRemoveImage={onRemoveAdditionalPhoto}
+          isUploadingAdd={Boolean(uploadingTargets?.has("additional:new"))}
         />
       </div>
       <DynamicPhotoSlots
@@ -145,6 +154,7 @@ export function PhotosStep({
         item={item}
         showErrors={showErrors}
         onUpdateDynamicPhoto={onUpdateDynamicPhoto}
+        uploadingTargets={uploadingTargets}
       />
 
       <div className="pt-8">
@@ -160,11 +170,13 @@ function DynamicPhotoSlots({
   item,
   showErrors,
   onUpdateDynamicPhoto,
+  uploadingTargets,
 }: {
   attributes: DynamicQuestion[];
   item: ItemDetails;
   showErrors: boolean;
   onUpdateDynamicPhoto: (attributeId: string, file: File | null) => void;
+  uploadingTargets?: Set<string>;
 }) {
   if (attributes.length === 0) {
     return <></>;
@@ -180,6 +192,7 @@ function DynamicPhotoSlots({
             showErrors={showErrors}
             photo={item.dynamicPhotos[attribute.id]}
             onFileChange={(file) => onUpdateDynamicPhoto(attribute.id, file)}
+            isUploading={Boolean(uploadingTargets?.has(`dynamic:${attribute.id}`))}
           />
         );
       })}

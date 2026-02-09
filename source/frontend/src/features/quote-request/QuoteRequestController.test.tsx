@@ -61,6 +61,7 @@ describe("QuoteRequestController", () => {
       addAdditionalPhoto: jest.fn(),
       removeAdditionalPhoto: jest.fn(),
       uploadingCount: 0,
+      uploadingTargets: new Set(),
     });
     mockUseQuoteRequestSubmit.mockReturnValue({
       submitRequest: jest.fn(),
@@ -89,6 +90,7 @@ describe("QuoteRequestController", () => {
       addAdditionalPhoto: jest.fn(),
       removeAdditionalPhoto: jest.fn(),
       uploadingCount: 1,
+      uploadingTargets: new Set(),
     });
     mockUseQuoteRequestSubmit.mockReturnValue({
       submitRequest: jest.fn(),

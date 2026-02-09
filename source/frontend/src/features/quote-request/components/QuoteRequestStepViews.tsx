@@ -19,6 +19,7 @@ type StepViewsArgs = {
   onUpdateDynamicAttribute: (attributeId: string, values: string[]) => void;
   onAddAdditionalPhoto: (file: File | null) => void;
   onRemoveAdditionalPhoto: (index: number) => void;
+  uploadingTargets: Set<string>;
   onUpdateUser: (user: { firstName: string; lastName: string; email: string }) => void;
   onAddAnother: () => void;
   onEditItem: (id: string) => void;
@@ -39,6 +40,7 @@ export function buildQuoteRequestStepViews({
   onUpdateDynamicAttribute,
   onAddAdditionalPhoto,
   onRemoveAdditionalPhoto,
+  uploadingTargets,
   onUpdateUser,
   onAddAnother,
   onEditItem,
@@ -64,6 +66,7 @@ export function buildQuoteRequestStepViews({
         onUpdateDynamicPhoto={onUpdateDynamicPhoto}
         onAddAdditionalPhoto={onAddAdditionalPhoto}
         onRemoveAdditionalPhoto={onRemoveAdditionalPhoto}
+        uploadingTargets={uploadingTargets}
       />
     ),
     <AdditionalItemsStep items={items} brandOptions={schema.options.brands} onAddAnother={onAddAnother} />,

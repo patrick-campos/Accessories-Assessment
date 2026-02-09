@@ -51,7 +51,7 @@ function PhotoSlotCard({
   }
   return (
     <div className="max-lg:m-auto">
-      <IMGSelector Label={label} OnSelect={onSelect} RemoveAction={handleRemove} IMGRef={preview} IsMissing={isMissing}/>
+      <IMGSelector Label={label} OnSelect={onSelect} RemoveAction={handleRemove} IMGRef={preview} IsMissing={isMissing} MiddleLabel={"Click to upload"}/>
      </div>
   );
 }

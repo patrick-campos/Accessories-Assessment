@@ -110,7 +110,7 @@ export function QuoteRequestView({
   const stepContent = stepViews[currentStep] ?? stepViews[0];
 
   return (
-    <section className="min-h-screen w-screen">
+    <section className="min-h-screen w-screen flex flex-col">
       <MasterHeader />
       {successModal}
       <ContentContainer className="xl:min-h-[80.4vh]">
@@ -132,7 +132,7 @@ export function QuoteRequestView({
           </aside>
         </TwoGridContainer>
       </ContentContainer>
-      <Footer/>
+      <Footer />
     </section>
   );
 }

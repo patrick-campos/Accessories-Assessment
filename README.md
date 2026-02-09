@@ -119,6 +119,19 @@ Services:
 - Postgres: `localhost:5432`
 Swagger: access the API docs at `http://localhost:8080/swagger`.
 
+## Screenshots
+Images are stored in `docs/screenshots/`:
+- Home  
+![Home](docs/screenshots/Home.png)
+- Quote list  
+![Quote list](docs/screenshots/QuoteList.png)
+- Quote form  
+![Quote form](docs/screenshots/Question.png)
+- Google Sheet  
+![Google Sheet](docs/screenshots/Sheet.png)
+- Google Drive folder  
+![Google Drive folder](docs/screenshots/Drive.png)
+
 ## Backend Architecture (Hexagonal)
 - **Controllers (Adapters/In)**: Thin, HTTP-only concerns.
 - **Use cases (Application/Core)**: Application layer (`UseCases/`).

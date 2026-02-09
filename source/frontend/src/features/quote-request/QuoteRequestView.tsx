@@ -104,6 +104,7 @@ export function QuoteRequestView({
     onAddAdditionalPhoto,
     onRemoveAdditionalPhoto,
     uploadingTargets,
+    submitState,
     onUpdateUser,
     onAddAnother,
     onEditItem,

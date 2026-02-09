@@ -3,12 +3,14 @@ import type { DynamicQuestion, ItemDetails } from "../types/quoteRequestTypes";
 import type { FormSchema } from "../schema";
 import { VerticalTableHeader } from "@/shared/ui/VerticalTableHeader";
 import { mapDynamicAttributes } from "../hooks/quoteRequestUtils";
+import { LoadingOverlay } from "@/shared/ui/LoadingOverlay";
 
 type ReviewStepProps = {
   items: ItemDetails[];
   schema: FormSchema;
   detailAttributes: DynamicQuestion[];
   user: { firstName: string; lastName: string; email: string };
+  submitState: "idle" | "sending" | "error" | "success";
   showErrors: boolean;
   onUpdateUser: (user: { firstName: string; lastName: string; email: string }) => void;
   onEditItem: (id: string) => void;
@@ -20,6 +22,7 @@ export function ReviewStep({
   schema,
   detailAttributes,
   user,
+  submitState,
   showErrors,
   onUpdateUser,
   onEditItem,
@@ -59,6 +62,7 @@ export function ReviewStep({
 
   return (
     <section className="[&>*:not(:last-child)]:border-b">
+      <LoadingOverlay isVisible={submitState === "sending"} />
       {items.map((item) => {
         return (
           <div key={item.id}>

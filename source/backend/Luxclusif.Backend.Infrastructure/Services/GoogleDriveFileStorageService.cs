@@ -1,5 +1,6 @@
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
+using Google.Apis.Upload;
 using Luxclusif.Backend.Application.Abstractions.Services;
 using Microsoft.Extensions.Options;
 
@@ -25,8 +26,9 @@ public sealed class GoogleDriveFileStorageService : IFileStorageService
         };
 
         var request = _driveService.Files.Create(fileMetadata, content, contentType);
-        request.Fields = "id, webViewLink, webContentLink";
+        request.Fields = "id";
         request.SupportsAllDrives = true;
+        request.ChunkSize = ResumableUpload.MinimumChunkSize * 32;
 
         var uploadResult = await request.UploadAsync(cancellationToken);
         if (uploadResult.Exception is not null)
@@ -41,7 +43,10 @@ public sealed class GoogleDriveFileStorageService : IFileStorageService
             throw new InvalidOperationException("Failed to upload file to Google Drive: empty response.");
         }
 
-        await EnsurePublicReadAsync(uploaded.Id, cancellationToken);
+        if (string.IsNullOrWhiteSpace(_options.FolderId))
+        {
+            await EnsurePublicReadAsync(uploaded.Id, cancellationToken);
+        }
 
         var location = BuildThumbnailUrl(uploaded.Id);
         return new FileStorageResult(_options.Provider, uploaded.Id, location);

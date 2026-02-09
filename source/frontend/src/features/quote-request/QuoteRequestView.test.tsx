@@ -49,7 +49,6 @@ describe("QuoteRequestView", () => {
         user={{ firstName: "A", lastName: "B", email: "a@b.com" }}
         submitState="idle"
         isUploading={false}
-        uploadingTargets={new Set()}
         showSuccessModal={false}
         detailAttributes={[]}
         photoAttributes={[]}
@@ -87,7 +86,6 @@ describe("QuoteRequestView", () => {
         user={{ firstName: "A", lastName: "B", email: "a@b.com" }}
         submitState="idle"
         isUploading={false}
-        uploadingTargets={new Set()}
         showSuccessModal={false}
         detailAttributes={[]}
         photoAttributes={[]}
@@ -112,3 +110,4 @@ describe("QuoteRequestView", () => {
     expect(screen.getByText("Photos")).toBeInTheDocument();
   });
 });
+

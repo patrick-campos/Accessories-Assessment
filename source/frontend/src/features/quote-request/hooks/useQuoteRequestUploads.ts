@@ -18,25 +18,9 @@ export function useQuoteRequestUploads({
 }) {
   const uploadEndpoint = apiOrigin ? `${apiOrigin}/file` : null;
   const [uploadingCount, setUploadingCount] = React.useState(0);
-  const [uploadingTargets, setUploadingTargets] = React.useState<Set<string>>(() => new Set());
 
   const startUpload = React.useCallback(() => setUploadingCount((prev) => prev + 1), []);
   const finishUpload = React.useCallback(() => setUploadingCount((prev) => Math.max(prev - 1, 0)), []);
-  const startTarget = React.useCallback((key: string) => {
-    setUploadingTargets((prev) => {
-      const next = new Set(prev);
-      next.add(key);
-      return next;
-    });
-  }, []);
-  const finishTarget = React.useCallback((key: string) => {
-    setUploadingTargets((prev) => {
-      if (!prev.has(key)) return prev;
-      const next = new Set(prev);
-      next.delete(key);
-      return next;
-    });
-  }, []);
 
   const revokePreview = React.useCallback((previewUrl?: string | null) => {
     if (previewUrl) {
@@ -78,17 +62,6 @@ export function useQuoteRequestUploads({
     },
     [finishUpload, setSubmitState, startUpload]
   );
-  const withTargetedUpload = React.useCallback(
-    async <T,>(key: string, operation: () => Promise<T>) => {
-      try {
-        startTarget(key);
-        return await withUpload(operation);
-      } finally {
-        finishTarget(key);
-      }
-    },
-    [finishTarget, startTarget, withUpload]
-  );
 
   const deleteFile = React.useCallback(
     async (fileId: string | null) => {
@@ -120,7 +93,7 @@ export function useQuoteRequestUploads({
         return;
       }
 
-      const uploaded = await withTargetedUpload(`photo:${slot}`, () => uploadFile(file));
+      const uploaded = await withUpload(() => uploadFile(file));
       if (!uploaded) return;
       setDraftItem((prev) => {
         revokePreview(prev.photos[slot]?.previewUrl);
@@ -157,7 +130,7 @@ export function useQuoteRequestUploads({
         return;
       }
 
-      const uploaded = await withTargetedUpload(`dynamic:${attributeId}`, () => uploadFile(file));
+      const uploaded = await withUpload(() => uploadFile(file));
       if (!uploaded) return;
       setDraftItem((prev) => {
         revokePreview(prev.dynamicPhotos[attributeId]?.previewUrl);
@@ -186,14 +159,14 @@ export function useQuoteRequestUploads({
     async (file: File | null) => {
       clearValidationErrors();
       if (!file) return;
-      const uploaded = await withTargetedUpload("additional:new", () => uploadFile(file));
+      const uploaded = await withUpload(() => uploadFile(file));
       if (!uploaded) return;
       setDraftItem((prev) => ({
         ...prev,
         additionalPhotos: [...prev.additionalPhotos, uploaded].slice(0, 16),
       }));
     },
-    [clearValidationErrors, setDraftItem, uploadFile, withTargetedUpload]
+    [clearValidationErrors, setDraftItem, uploadFile, withUpload]
   );
 
   const removeAdditionalPhoto = React.useCallback(
@@ -214,10 +187,10 @@ export function useQuoteRequestUploads({
   return {
     uploadEndpoint,
     uploadingCount,
-    uploadingTargets,
     updatePhoto,
     updateDynamicPhoto,
     addAdditionalPhoto,
     removeAdditionalPhoto,
   };
 }
+

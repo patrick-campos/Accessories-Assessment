@@ -24,7 +24,6 @@ type Props = {
   user: { firstName: string; lastName: string; email: string };
   submitState: "idle" | "sending" | "error" | "success";
   isUploading: boolean;
-  uploadingTargets: Set<string>;
   showSuccessModal: boolean;
   detailAttributes: DynamicQuestion[];
   photoAttributes: DynamicQuestion[];
@@ -56,7 +55,6 @@ export function QuoteRequestView({
   user,
   submitState,
   isUploading,
-  uploadingTargets,
   showSuccessModal,
   detailAttributes,
   photoAttributes,
@@ -103,7 +101,6 @@ export function QuoteRequestView({
     onUpdateDynamicAttribute,
     onAddAdditionalPhoto,
     onRemoveAdditionalPhoto,
-    uploadingTargets,
     submitState,
     onUpdateUser,
     onAddAnother,
@@ -128,7 +125,7 @@ export function QuoteRequestView({
             {stepContent}
             <div className="flex justify-end pt-[6.2rem] max-sm:grid-cols-2 max-sm:flex-col max-sm:gap-8 max-sm:justify-center max-sm:pt-[2rem]">
               <ButtonStep variant="outline" shouldRender={showBack} onClick={onBack} className="rounded-round px-[5.8rem] min-w-[4.4rem] mr-[2rem] mb-0.8rem max-sm:w-full max-sm:mr-0">Back</ButtonStep>
-              <ButtonStep shouldRender={shouldShowNext}  onClick={onNext} disabled={submitState === "sending" || isUploading} className="rounded-round px-[5.8rem] min-w-[4.4rem] max-sm:w-full">{isLast ? 'Request Quote':'Next'}</ButtonStep>
+              <ButtonStep shouldRender={shouldShowNext} onClick={onNext} disabled={submitState === "sending" || isUploading} className="rounded-round px-[5.8rem] min-w-[4.4rem] max-sm:w-full">{isLast ? "Request Quote" : "Next"}</ButtonStep>
             </div>
           </ContainerStep>
           <aside className="w-full bg-transparent max-xl:py-lg lg:w-[35.3rem] min-[1440px]:w-[39.3rem] max-lg:my-lg">
@@ -140,3 +137,4 @@ export function QuoteRequestView({
     </section>
   );
 }
+

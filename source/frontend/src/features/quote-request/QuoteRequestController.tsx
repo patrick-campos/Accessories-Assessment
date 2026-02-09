@@ -88,7 +88,6 @@ export function QuoteRequestController() {
   }, []);
 
   const uploadingCount = uploads.uploadingCount;
-  const uploadingTargets = uploads.uploadingTargets;
   const requiredDynamicPhotos = React.useMemo(
     () => photoAttributes.filter((attribute) => attribute.isRequired).map((attribute) => attribute.id),
     [photoAttributes]
@@ -217,7 +216,6 @@ export function QuoteRequestController() {
       onUpdateDynamicPhoto={updateDynamicPhoto}
       detailAttributes={detailAttributes}
       photoAttributes={photoAttributes}
-      uploadingTargets={uploadingTargets}
       onUpdateDynamicAttribute={updateDynamicAttribute}
       onAddAdditionalPhoto={addAdditionalPhoto}
       onRemoveAdditionalPhoto={removeAdditionalPhoto}
@@ -233,3 +231,4 @@ export function QuoteRequestController() {
     />
   );
 }
+

@@ -1,5 +1,5 @@
 import type { FormSchema } from "../schema";
-import type { ItemDetails, PhotoSlot, UserDetails } from "../types/quoteRequestTypes";
+import type { DynamicQuestion, ItemDetails, PhotoSlot, UserDetails } from "../types/quoteRequestTypes";
 import { defaultSchema } from "../schema";
 
 const photoSlots: PhotoSlot[] = ["front", "back", "bottom", "interior"];
@@ -77,4 +77,31 @@ export function upsertItem(items: ItemDetails[], nextItem: ItemDetails) {
 
 export function getPhotoSlots() {
   return [...photoSlots];
+}
+
+export function mapDynamicAttributes(
+  attributes: DynamicQuestion[],
+  valuesById: Record<string, string[]>
+) {
+  return attributes
+    .map((attribute) => {
+      const values = valuesById[attribute.id] ?? [];
+      if (values.length === 0) return null;
+      const optionLookup = attribute.options.reduce((map, option) => {
+        map.set(option.id, option.label);
+        return map;
+      }, new Map<string, string>());
+      return {
+        id: attribute.id,
+        label: attribute.name,
+        values: values.map((value) => ({
+          id: value,
+          label: optionLookup.get(value) ?? value,
+        })),
+      };
+    })
+    .filter(
+      (entry): entry is { id: string; label: string; values: Array<{ id: string; label: string }> } =>
+        Boolean(entry)
+    );
 }

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { RestClient } from "@/shared/api";
 import type { DynamicQuestion, ItemDetails, PhotoSlot, UserDetails } from "../types/quoteRequestTypes";
-import { getPhotoSlots } from "./quoteRequestUtils";
+import { getPhotoSlots, mapDynamicAttributes } from "./quoteRequestUtils";
 
 export function useQuoteRequestSubmit({
   apiOrigin,
@@ -43,32 +43,11 @@ export function useQuoteRequestSubmit({
         return;
       }
 
-      const optionLookupByAttribute = detailAttributes.reduce((map, attribute) => {
-        map.set(
-          attribute.id,
-          attribute.options.reduce((optionsMap, option) => {
-            optionsMap.set(option.id, option.label);
-            return optionsMap;
-          }, new Map<string, string>())
-        );
-        return map;
-      }, new Map<string, Map<string, string>>());
-
       const buildAttributes = (item: ItemDetails) =>
-        detailAttributes
-          .map((attribute) => {
-            const values = item.dynamicAttributes[attribute.id] ?? [];
-            if (values.length === 0) return null;
-            const lookup = optionLookupByAttribute.get(attribute.id);
-            return {
-              id: attribute.id,
-              values: values.map((value) => ({
-                id: value,
-                label: lookup?.get(value) ?? value,
-              })),
-            };
-          })
-          .filter((entry): entry is { id: string; values: Array<{ id: string; label: string }> } => Boolean(entry));
+        mapDynamicAttributes(detailAttributes, item.dynamicAttributes).map(({ id, values }) => ({
+          id,
+          values,
+        }));
 
       const filePayload = (fileId: string, subtype: string) => ({
         type: "Photos",

@@ -47,19 +47,8 @@ public sealed class QuotesController : ControllerBase
     {
         try
         {
-            var responses = new List<string>();
-            foreach (var item in request.Items)
-            {
-                var singleRequest = new QuoteRequestDto(
-                    request.CountryOfOrigin,
-                    request.CustomerInformation,
-                    new List<QuoteItemDto> { item });
-
-                var response = await useCase.ExecuteAsync(singleRequest, cancellationToken);
-                responses.Add(response.QuoteId);
-            }
-
-            return Ok(new QuoteBatchResponse(responses));
+            var response = await useCase.ExecuteBatchAsync(request, cancellationToken);
+            return Ok(response);
         }
         catch (DomainException exception)
         {

@@ -13,10 +13,16 @@ public sealed class SaveQuoteTests
     {
         var countryRepository = new InMemoryCountryRepository();
         var quoteRepository = new InMemoryQuoteRepository();
+        var fileUploadRepository = new InMemoryFileUploadRepository();
         var spreadsheetService = new InMemorySpreadsheetService();
         var unitOfWork = new FakeUnitOfWork();
 
-        var useCase = new SaveQuote(countryRepository, quoteRepository, spreadsheetService, unitOfWork);
+        var useCase = new SaveQuote(
+            countryRepository,
+            fileUploadRepository,
+            quoteRepository,
+            spreadsheetService,
+            unitOfWork);
 
         var request = new QuoteRequestDto(
             "GB",
@@ -90,6 +96,24 @@ public sealed class SaveQuoteTests
         public Task ExecuteAsync(Func<CancellationToken, Task> action, CancellationToken cancellationToken)
         {
             return action(cancellationToken);
+        }
+    }
+
+    private sealed class InMemoryFileUploadRepository : IFileUploadRepository
+    {
+        public Task SaveAsync(FileUpload fileUpload, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task<FileUpload?> GetByIdAsync(string id, CancellationToken cancellationToken)
+        {
+            return Task.FromResult<FileUpload?>(null);
+        }
+
+        public Task DeleteAsync(string id, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
     }
 }

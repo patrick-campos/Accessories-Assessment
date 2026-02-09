@@ -34,14 +34,59 @@ public sealed class SaveQuote
             throw new InvalidOperationException("Country of origin does not exist.");
         }
 
-        var customer = new Customer(
-            request.CustomerInformation.ExternalSellerTier,
-            request.CustomerInformation.FirstName,
-            request.CustomerInformation.LastName,
-            request.CustomerInformation.Email);
+        var customer = BuildCustomer(request.CustomerInformation);
+        var items = await BuildItemsAsync(request.Items, cancellationToken);
+        var quote = new Quote(
+            Guid.NewGuid().ToString(),
+            request.CountryOfOrigin,
+            customer,
+            items);
 
-        var items = new List<Item>();
+        await PersistQuoteAsync(quote, cancellationToken);
+
+        return new QuoteResponse(quote.Id);
+    }
+
+    public async Task<QuoteBatchResponse> ExecuteBatchAsync(QuoteRequestDto request, CancellationToken cancellationToken)
+    {
+        if (!await _countryRepository.ExistsAsync(request.CountryOfOrigin, cancellationToken))
+        {
+            throw new InvalidOperationException("Country of origin does not exist.");
+        }
+
+        var customer = BuildCustomer(request.CustomerInformation);
+        var quoteIds = new List<string>();
+
         foreach (var item in request.Items)
+        {
+            var items = await BuildItemsAsync(new List<QuoteItemDto> { item }, cancellationToken);
+            var quote = new Quote(
+                Guid.NewGuid().ToString(),
+                request.CountryOfOrigin,
+                customer,
+                items);
+
+            await PersistQuoteAsync(quote, cancellationToken);
+            quoteIds.Add(quote.Id);
+        }
+
+        return new QuoteBatchResponse(quoteIds);
+    }
+
+    private static Customer BuildCustomer(CustomerInformationDto customer)
+    {
+        return new Customer(
+            customer.ExternalSellerTier,
+            customer.FirstName,
+            customer.LastName,
+            customer.Email);
+    }
+
+    private async Task<List<Item>> BuildItemsAsync(IReadOnlyCollection<QuoteItemDto> items, CancellationToken cancellationToken)
+    {
+        var result = new List<Item>();
+
+        foreach (var item in items)
         {
             var attributes = item.Attributes.Select(attribute => new ItemAttribute(
                 attribute.Id,
@@ -54,7 +99,7 @@ public sealed class SaveQuote
                 files.Add(await BuildItemFileAsync(file, cancellationToken));
             }
 
-            items.Add(new Item(
+            result.Add(new Item(
                 item.CategoryId,
                 item.BrandId,
                 item.Model,
@@ -63,19 +108,16 @@ public sealed class SaveQuote
                 files));
         }
 
-        var quote = new Quote(
-            Guid.NewGuid().ToString(),
-            request.CountryOfOrigin,
-            customer,
-            items);
+        return result;
+    }
 
+    private async Task PersistQuoteAsync(Quote quote, CancellationToken cancellationToken)
+    {
         await _unitOfWork.ExecuteAsync(async ct =>
         {
             await _quoteRepository.SaveAsync(quote, ct);
             await _spreadsheetService.AppendQuoteAsync(quote, ct);
         }, cancellationToken);
-
-        return new QuoteResponse(quote.Id);
     }
 
     private async Task<ItemFile> BuildItemFileAsync(QuoteItemFileDto file, CancellationToken cancellationToken)

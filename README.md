@@ -21,6 +21,11 @@ Required OAuth scopes:
 - `https://www.googleapis.com/auth/drive.file`
 - `https://www.googleapis.com/auth/spreadsheets`
 
+Google Drive permissions required:
+- The OAuth user must have access to the target folder.
+- Share the folder with the OAuth user (or upload inside their own Drive).
+- For image rendering, the file is set to **Anyone with the link** (reader).
+
 Generate a refresh token using:
 ```
 .\scripts\get_google_refresh_token.ps1 -ClientSecretPath "C:\path\client_secret.json"

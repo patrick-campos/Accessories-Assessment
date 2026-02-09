@@ -23,7 +23,7 @@ VALUES (
     'quote-creation:item-details.attributes.size.title',
     1,
     'OneOf',
-    false,
+    true,
     'Buyback'
 )
 ON CONFLICT (id) DO NOTHING;
@@ -36,7 +36,7 @@ VALUES (
     'quote-creation:item-details.attributes.condition.title',
     2,
     'OneOf',
-    false,
+    true,
     'Buyback'
 )
 ON CONFLICT (id) DO NOTHING;
@@ -48,7 +48,7 @@ VALUES (
     'Extras',
     'quote-creation:item-details.attributes.extras.title',
     3,
-    'ManyOf',
+    'AnyOf',
     false,
     'Buyback'
 )

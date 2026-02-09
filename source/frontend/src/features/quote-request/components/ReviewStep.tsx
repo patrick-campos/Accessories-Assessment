@@ -1,11 +1,13 @@
 import { InformationSection } from "@/shared/ui/InformationSection";
-import type { ItemDetails } from "../types/quoteRequestTypes";
+import type { DynamicQuestion, ItemDetails } from "../types/quoteRequestTypes";
 import type { FormSchema } from "../schema";
 import { VerticalTableHeader } from "@/shared/ui/VerticalTableHeader";
+import { mapDynamicAttributes } from "../hooks/quoteRequestUtils";
 
 type ReviewStepProps = {
   items: ItemDetails[];
   schema: FormSchema;
+  detailAttributes: DynamicQuestion[];
   user: { firstName: string; lastName: string; email: string };
   showErrors: boolean;
   onUpdateUser: (user: { firstName: string; lastName: string; email: string }) => void;
@@ -16,6 +18,7 @@ type ReviewStepProps = {
 export function ReviewStep({
   items,
   schema,
+  detailAttributes,
   user,
   showErrors,
   onUpdateUser,
@@ -40,10 +43,16 @@ export function ReviewStep({
   }
 
   function TransformItemToRecord(item: ItemDetails): Record<string, string> {
+    const dynamicEntries = mapDynamicAttributes(detailAttributes, item.dynamicAttributes);
+    const dynamicFields = dynamicEntries.reduce<Record<string, string>>((acc, entry) => {
+      acc[entry.label] = entry.values.map((value) => value.label).join(", ");
+      return acc;
+    }, {});
     return {
       Category: resolveLabel(schema.options.categories, item.category),
       Brand: resolveLabel(schema.options.brands, item.brand),
       Model: item.model,
+      ...dynamicFields,
       "Additional Information": item.additionalInfo,
     };
   }

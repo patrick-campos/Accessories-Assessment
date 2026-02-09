@@ -74,6 +74,7 @@ export function buildQuoteRequestStepViews({
       <ReviewStep
         items={items}
         schema={schema}
+        detailAttributes={detailAttributes}
         user={user}
         showErrors={showErrors}
         onUpdateUser={onUpdateUser}

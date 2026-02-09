@@ -22,7 +22,7 @@ type QuoteListViewProps = {
 
 export function QuoteListView({ items }: QuoteListViewProps) {
     return (
-        <section className="min-h-screen w-screen flex flex-col">
+        <section className="w-screen flex flex-col flex-1">
             <div>
                 <MasterHeader />
                 <div className="w-full mt-[1.8rem] text-center">

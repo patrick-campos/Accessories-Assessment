@@ -11,6 +11,7 @@ type DynamicQuestionProps = {
   onChange?: (values: string[]) => void;
   photo?: UploadedPhotoSlot;
   onFileChange?: (file: File | null) => void;
+  isUploading?: boolean;
 };
 
 export function DynamicQuestion({
@@ -20,6 +21,7 @@ export function DynamicQuestion({
   onChange,
   photo,
   onFileChange,
+  isUploading,
 }: DynamicQuestionProps) {
   if (question.stage === "item-photos") {
     return (
@@ -28,6 +30,7 @@ export function DynamicQuestion({
         showErrors={showErrors}
         photo={photo}
         onFileChange={onFileChange}
+        isUploading={isUploading}
       />
     );
   }
@@ -118,11 +121,13 @@ function DynamicPhotoQuestion({
   showErrors,
   photo,
   onFileChange,
+  isUploading,
 }: {
   question: DynamicQuestion;
   showErrors: boolean;
   photo?: UploadedPhotoSlot;
   onFileChange?: (file: File | null) => void;
+  isUploading?: boolean;
 }) {
   const previewUrl = photo?.previewUrl ?? null;
   const isMissing = showErrors && question.isRequired && !photo?.fileId;
@@ -138,6 +143,7 @@ function DynamicPhotoQuestion({
         }}
         IMGRef={previewUrl}
         IsMissing={isMissing}
+        isUploading={isUploading}
       />
     </div>
   );

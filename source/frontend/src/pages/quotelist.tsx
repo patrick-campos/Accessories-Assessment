@@ -5,8 +5,10 @@ import { PageShell } from "@/shared/ui/PageShell";
 export default function QuoteListPage() {
   return (
     <PageShell title="Luxclusif - Quote" description="Luxclusif Quote.">
-      <QuoteListController />
-      <Footer/>
+      <div className="min-h-screen w-screen flex flex-col">
+        <QuoteListController />
+        <Footer />
+      </div>
     </PageShell>
   );
 }

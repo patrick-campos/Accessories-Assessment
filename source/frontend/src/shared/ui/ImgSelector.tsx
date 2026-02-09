@@ -1,5 +1,6 @@
 import { cn } from "@/shared/lib"
 import { Button } from "@/shared/ui";
+import { LoadingOverlay } from "@/shared/ui/LoadingOverlay";
 import { Trash2 } from "lucide-react";
 import React from "react";
 
@@ -10,9 +11,10 @@ type IMGSelectorProps = React.ComponentProps<"div"> & {
     RemoveAction?: (event?: React.MouseEvent<HTMLButtonElement>) => void;
     OnSelect?: (file: File | null) => void;
     MiddleLabel?:string;
+    isUploading?: boolean;
 }
 
-export function IMGSelector({ IsMissing, Label, MiddleLabel, className, IMGRef, OnSelect, RemoveAction, ...props }: IMGSelectorProps): JSX.Element {
+export function IMGSelector({ IsMissing, Label, MiddleLabel, className, IMGRef, OnSelect, RemoveAction, isUploading, ...props }: IMGSelectorProps): JSX.Element {
 
     const transitionClasses = IsMissing ? 'border-rose' : '';
 
@@ -107,8 +109,9 @@ export function IMGSelector({ IsMissing, Label, MiddleLabel, className, IMGRef, 
 
     return (
         <div className="h-full m-auto">
-            <div {...props} className={cn("flex h-[15.5rem] w-[15.5rem] flex-col items-center justify-center gap-3 border-default rounded-sm border-[0.1rem] border-dashed cursor-pointer", className ,transitionClasses)}>
+            <div {...props} className={cn("relative flex h-[15.5rem] w-[15.5rem] flex-col items-center justify-center gap-3 border-default rounded-sm border-[0.1rem] border-dashed cursor-pointer", className ,transitionClasses)}>
                 {RenderFieldContent(IMGRef, MiddleLabel ,OnSelect, RemoveAction)}
+                <LoadingOverlay isVisible={Boolean(isUploading)} isContained className="rounded-sm" />
             </div>
             {RenderPreviewFooter(Label, IsMissing)}
         </div>

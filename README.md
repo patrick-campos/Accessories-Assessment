@@ -24,7 +24,7 @@ Required OAuth scopes:
 Google Drive permissions required:
 - The OAuth user must have access to the target folder.
 - Share the folder with the OAuth user (or upload inside their own Drive).
-- For image rendering, the file is set to **Anyone with the link** (reader).
+- For image rendering, the folder is set to **Anyone with the link** (reader).
 
 Generate a refresh token using:
 ```

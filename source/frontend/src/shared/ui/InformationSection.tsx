@@ -17,7 +17,7 @@ export function InformationSection({ Title, Item, OnEdit, ...props }: Informatio
                 <tbody className="gap-sm flex flex-col items-start w-full">
                     {Object.entries(item).map(([key, value]) => {
                         return (
-                            <tr className="w-full flex items-start justify-between">
+                            <tr key={key} className="w-full flex items-start justify-between">
                                 <th className="w-1/2"><TitleText as="h3" className="text-secondaryTitle font-bold text-left w-full">{key}</TitleText></th>
                                 <td className="w-1/2"><DefaultText className="text-subtitle font-normal text-right w-full">{value}</DefaultText></td>
                             </tr>

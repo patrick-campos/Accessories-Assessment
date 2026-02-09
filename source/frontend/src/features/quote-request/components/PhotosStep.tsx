@@ -1,15 +1,18 @@
 import { TitleText } from "@/shared/ui/Title";
 import * as React from "react";
-import type { ItemDetails } from "../QuoteRequestController";
+import type { DynamicQuestion, ItemDetails } from "../types/quoteRequestTypes";
 import { cn } from "@/shared/lib/cn";
 import { DefaultText } from "@/shared/ui/DefaultText";
 import { IMGSelector } from "../../../shared/ui/ImgSelector";
 import { DynamicImagesSelect } from "@/shared/ui/DynamicImagesSelector";
+import { DynamicQuestion as DynamicQuestionField } from "./DynamicQuestion";
 
 type PhotosStepProps = {
   item: ItemDetails;
   showErrors: boolean;
   onUpdatePhoto: (slot: "front" | "back" | "bottom" | "interior", file: File | null) => void;
+  onUpdateDynamicPhoto: (attributeId: string, file: File | null) => void;
+  dynamicAttributes: DynamicQuestion[];
   onAddAdditionalPhoto: (file: File | null) => void;
   onRemoveAdditionalPhoto: (index: number) => void;
 };
@@ -52,51 +55,6 @@ function PhotoSlotCard({
      </div>
   );
 }
-
-/*
-
- <div className="relative">
-        {preview ? (
-          <div className={cardClasses}>
-            <img src={preview} alt={label} className="h-full w-full rounded-2xl object-cover" />
-            <RequiredHint isMissing={isMissing} />
-          </div>
-        ) : (
-          <label className={cardClasses}>
-            <span>Click to upload</span>
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              ref={inputRef}
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (!file) return;
-                onSelect(file);
-              }}
-            />
-            <RequiredHint isMissing={isMissing} />
-          </label>
-        )}
-        {preview ? (
-          <button
-            type="button"
-            className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-ink/70 text-mist"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              handleRemove(event);
-            }}
-          >
-            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-              <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8zM7 10h2v8H7v-8z" />
-            </svg>
-          </button>
-        ) : null}
-      </div>
-      <span className="text-normal text-[1.1rem]">{label}</span>
-    </div>
-  */
 
 function PhotoSlotsGrid({
   item,
@@ -157,6 +115,8 @@ export function PhotosStep({
   item,
   showErrors,
   onUpdatePhoto,
+  onUpdateDynamicPhoto,
+  dynamicAttributes,
   onAddAdditionalPhoto,
   onRemoveAdditionalPhoto,
 }: PhotosStepProps) {
@@ -180,6 +140,12 @@ export function PhotosStep({
           onRemoveImage={onRemoveAdditionalPhoto}
         />
       </div>
+      <DynamicPhotoSlots
+        attributes={dynamicAttributes}
+        item={item}
+        showErrors={showErrors}
+        onUpdateDynamicPhoto={onUpdateDynamicPhoto}
+      />
 
       <div className="pt-8">
         <TitleText className="font-normal text-secondaryTitle font-bold">Important information</TitleText>
@@ -188,3 +154,37 @@ export function PhotosStep({
     </div>
   );
 }
+
+function DynamicPhotoSlots({
+  attributes,
+  item,
+  showErrors,
+  onUpdateDynamicPhoto,
+}: {
+  attributes: DynamicQuestion[];
+  item: ItemDetails;
+  showErrors: boolean;
+  onUpdateDynamicPhoto: (attributeId: string, file: File | null) => void;
+}) {
+  if (attributes.length === 0) {
+    return <></>;
+  }
+
+  return (
+    <div className="grid gap-4 max-sm:grid-cols-2 lg:grid-cols-4 max-lg:grid-cols-3">
+      {attributes.map((attribute) => {
+        return (
+          <DynamicQuestionField
+            key={attribute.id}
+            question={attribute}
+            showErrors={showErrors}
+            photo={item.dynamicPhotos[attribute.id]}
+            onFileChange={(file) => onUpdateDynamicPhoto(attribute.id, file)}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+

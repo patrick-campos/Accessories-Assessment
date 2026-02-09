@@ -1,11 +1,8 @@
-import type { ItemDetails } from "./QuoteRequestController";
+import type { DynamicQuestion, ItemDetails } from "./types/quoteRequestTypes";
 import type { FormSchema } from "./schema";
-import { Button, MasterHeader, Modal } from "@/shared/ui";
+import { MasterHeader } from "@/shared/ui";
 import { AuxiliarySections } from "./components/AuxiliarySections";
-import { DetailsStep } from "./components/DetailsStep";
-import { PhotosStep } from "./components/PhotosStep";
-import { AdditionalItemsStep } from "./components/AdditionalItemsStep";
-import { ReviewStep } from "./components/ReviewStep";
+import { buildQuoteRequestStepViews } from "./components/QuoteRequestStepViews";
 import { TitleText } from "@/shared/ui/Title";
 import { DefaultText } from "@/shared/ui/DefaultText";
 import { ContentContainer } from "@/shared/ui/ContentContainer";
@@ -13,6 +10,8 @@ import { HeaderStep } from "./components/HeaderStep";
 import { TwoGridContainer } from "@/shared/ui/TwoGridContainer";
 import { ContainerStep } from "./components/ContainerStep";
 import { ButtonStep } from "./components/ButtonsStep";
+import { QuoteSuccessModal } from "./components/QuoteSuccessModal";
+import { Footer } from "@/shared/ui/footer";
 
 type Props = {
   schema: FormSchema;
@@ -26,8 +25,12 @@ type Props = {
   submitState: "idle" | "sending" | "error" | "success";
   isUploading: boolean;
   showSuccessModal: boolean;
+  detailAttributes: DynamicQuestion[];
+  photoAttributes: DynamicQuestion[];
   onUpdateItem: (partial: Partial<ItemDetails>) => void;
   onUpdatePhoto: (slot: "front" | "back" | "bottom" | "interior", file: File | null) => void;
+  onUpdateDynamicPhoto: (attributeId: string, file: File | null) => void;
+  onUpdateDynamicAttribute: (attributeId: string, values: string[]) => void;
   onAddAdditionalPhoto: (file: File | null) => void;
   onRemoveAdditionalPhoto: (index: number) => void;
   onUpdateUser: (user: { firstName: string; lastName: string; email: string }) => void;
@@ -53,8 +56,12 @@ export function QuoteRequestView({
   submitState,
   isUploading,
   showSuccessModal,
+  detailAttributes,
+  photoAttributes,
   onUpdateItem,
   onUpdatePhoto,
+  onUpdateDynamicPhoto,
+  onUpdateDynamicAttribute,
   onAddAdditionalPhoto,
   onRemoveAdditionalPhoto,
   onUpdateUser,
@@ -71,64 +78,39 @@ export function QuoteRequestView({
   const showBack = currentStep > 0;
   const isLast = currentStep === schema.steps.length - 1;
   const shouldShowNext = currentStep !== 0 || Boolean(currentItem.category);
-  let successModal: React.ReactNode = null;
-  if (showSuccessModal) {
-    successModal = (
-      <Modal
-        isOpen={showSuccessModal}
-        title="We'll be in touch soon"
-        message="We'll contact you within the next 3 working days with you quote. You'll then be able to view It in My Quotes."
-        onClose={onCloseSuccessModal}
-        secondaryAction={
-          <Button variant="ghost" type="button" onClick={onRequestAnotherQuote}>
-            Request Another Quote
-          </Button>
-        }
-        primaryAction={
-          <Button type="button" onClick={onMyQuotes}>
-            My Quotes
-          </Button>
-        }
-      />
-    );
-  }
+  const successModal = (
+    <QuoteSuccessModal
+      isOpen={showSuccessModal}
+      onClose={onCloseSuccessModal}
+      onRequestAnother={onRequestAnotherQuote}
+      onMyQuotes={onMyQuotes}
+    />
+  );
 
-  const stepViews = {
-    0: (
-      <DetailsStep
-        schema={schema}
-        item={currentItem}
-        showErrors={showErrors}
-        onUpdateItem={onUpdateItem}
-      />
-    ),
-    1: (
-      <PhotosStep
-        item={currentItem}
-        showErrors={showErrors}
-        onUpdatePhoto={onUpdatePhoto}
-        onAddAdditionalPhoto={onAddAdditionalPhoto}
-        onRemoveAdditionalPhoto={onRemoveAdditionalPhoto}
-      />
-    ),
-    2: <AdditionalItemsStep items={items} brandOptions={schema.options.brands} onAddAnother={onAddAnother} />,
-    3: (
-      <ReviewStep
-        items={items}
-        schema={schema}
-        user={user}
-        showErrors={showErrors}
-        onUpdateUser={onUpdateUser}
-        onEditItem={onEditItem}
-        onEditPhotos={onEditPhotos}
-      />
-    ),
-  } as const;
+  const stepViews = buildQuoteRequestStepViews({
+    schema,
+    currentItem,
+    items,
+    user,
+    showErrors,
+    detailAttributes,
+    photoAttributes,
+    onUpdateItem,
+    onUpdatePhoto,
+    onUpdateDynamicPhoto,
+    onUpdateDynamicAttribute,
+    onAddAdditionalPhoto,
+    onRemoveAdditionalPhoto,
+    onUpdateUser,
+    onAddAnother,
+    onEditItem,
+    onEditPhotos,
+  });
 
-  const stepContent = stepViews[currentStep as 0 | 1 | 2 | 3] ?? stepViews[0];
+  const stepContent = stepViews[currentStep] ?? stepViews[0];
 
   return (
-    <section className="h-screen w-screen">
+    <section className="min-h-screen w-screen">
       <MasterHeader />
       {successModal}
       <ContentContainer>
@@ -150,6 +132,7 @@ export function QuoteRequestView({
           </aside>
         </TwoGridContainer>
       </ContentContainer>
+      <Footer/>
     </section>
   );
 }

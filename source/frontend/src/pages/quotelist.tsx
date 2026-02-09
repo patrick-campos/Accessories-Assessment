@@ -1,10 +1,12 @@
 import { QuoteListController } from "@/features/quotelist/QuoteListController";
+import { Footer } from "@/shared/ui/footer";
 import { PageShell } from "@/shared/ui/PageShell";
 
-export default function HomePage() {
+export default function QuoteListPage() {
   return (
-    <PageShell title="Luxclusif - Home" description="Luxclusif home.">
+    <PageShell title="Luxclusif - Quote" description="Luxclusif Quote.">
       <QuoteListController />
+      <Footer/>
     </PageShell>
   );
 }

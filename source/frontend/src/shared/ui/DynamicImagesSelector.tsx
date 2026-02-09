@@ -26,7 +26,7 @@ export function DynamicImagesSelect({
   return (
     <div className="grid flex-col w-full h-full max-sm:grid-cols-2 max-lg:grid-cols-3 lg:grid-cols-4 gap-3 max-lg:justify-between">
       {images?.map((image, index) => RenderImagesSelected(image, index))}
-      <IMGSelector OnSelect={onAddImage} MiddleLabel={"Drag and drop or click to upload"} />
+      <IMGSelector OnSelect={onAddImage} MiddleLabel={"Click to upload"} />
     </div>
   );
 }

@@ -17,9 +17,6 @@ export type FormSchema = {
     countries: Array<{ value: string; label: string }>;
     categories: Array<{ value: string; label: string }>;
     brands: Array<{ value: string; label: string }>;
-    sizes: Array<{ value: string; label: string }>;
-    conditions: Array<{ value: string; label: string }>;
-    extras: Array<{ value: string; label: string }>;
   };
 };
 
@@ -148,21 +145,6 @@ export const defaultSchema: FormSchema = {
       { value: "chanel", label: "Chanel" },
       { value: "gucci", label: "Gucci" },
       { value: "prada", label: "Prada" },
-    ],
-    sizes: [
-      { value: "small", label: "Small" },
-      { value: "medium", label: "Medium" },
-      { value: "large", label: "Large" },
-    ],
-    conditions: [
-      { value: "new", label: "New" },
-      { value: "good", label: "Good" },
-      { value: "fair", label: "Fair" },
-    ],
-    extras: [
-      { value: "dust-bag", label: "Dust bag" },
-      { value: "strap", label: "Strap" },
-      { value: "box", label: "Original box" },
     ],
   },
 };

@@ -1,5 +1,5 @@
 import { DefaultText } from "@/shared/ui/DefaultText";
-import type { ItemDetails } from "../QuoteRequestController";
+import type { ItemDetails } from "../types/quoteRequestTypes";
 import { Button } from "@/shared/ui";
 import { Plus } from "lucide-react";
 

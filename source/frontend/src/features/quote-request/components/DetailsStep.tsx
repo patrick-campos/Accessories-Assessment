@@ -1,21 +1,49 @@
-import type { ItemDetails } from "../QuoteRequestController";
+import type { DynamicQuestion, ItemDetails } from "../types/quoteRequestTypes";
 import type { FormSchema } from "../schema";
 import { Input, SelectSearchable, Textarea } from "@/shared/ui";
-import { cn } from "@/shared/lib/cn";
-import { ContainerStep } from "./ContainerStep";
-import { TitleText } from "@/shared/ui/Title";
-import { DefaultText } from "@/shared/ui/DefaultText";
+import { DynamicQuestion as DynamicQuestionField } from "./DynamicQuestion";
 
 type DetailsStepProps = {
   schema: FormSchema;
   item: ItemDetails;
   showErrors: boolean;
   onUpdateItem: (partial: Partial<ItemDetails>) => void;
+  dynamicAttributes: DynamicQuestion[];
+  onUpdateDynamicAttribute: (attributeId: string, values: string[]) => void;
 };
 
-export function DetailsStep({ schema, item, showErrors, onUpdateItem }: DetailsStepProps) {
+export function DetailsStep({
+  schema,
+  item,
+  showErrors,
+  onUpdateItem,
+  dynamicAttributes,
+  onUpdateDynamicAttribute,
+}: DetailsStepProps) {
   const shouldShowDetails = Boolean(item.category);
   const detailsClassName = shouldShowDetails ? "space-y-6" : "hidden";
+
+  function RenderDynamicAttributesSection() {
+    if (dynamicAttributes.length === 0) {
+      return <></>;
+    }
+
+    return (
+      <div className="space-y-6">
+        {dynamicAttributes.map((attribute) => {
+          return (
+            <DynamicQuestionField
+              key={attribute.id}
+              question={attribute}
+              showErrors={showErrors}
+              values={item.dynamicAttributes[attribute.id] ?? []}
+              onChange={(values) => onUpdateDynamicAttribute(attribute.id, values)}
+            />
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <>
@@ -54,48 +82,7 @@ export function DetailsStep({ schema, item, showErrors, onUpdateItem }: DetailsS
           error={showErrors && !item.model ? "Required" : undefined}
           onChange={(event) => onUpdateItem({ model: event.target.value })}
         />
-        <SelectSearchable
-          label="Size"
-          required
-          placeholder="Select size"
-          options={schema.options.sizes}
-          value={item.size}
-          error={showErrors && !item.size ? "Required" : undefined}
-          onChange={(value) => onUpdateItem({ size: value })}
-        />
-        <SelectSearchable
-          label="Condition"
-          required
-          placeholder="Select condition"
-          options={schema.options.conditions}
-          value={item.condition}
-          error={showErrors && !item.condition ? "Required" : undefined}
-          onChange={(value) => onUpdateItem({ condition: value })}
-        />
-        <div className="space-y-3">
-          <p className="text-sm font-semibold text-ink">Extras</p>
-          <div className="flex flex-wrap gap-3">
-            {schema.options.extras.map((extra) => {
-              const isActive = item.extras.includes(extra.value);
-              const nextExtras = isActive
-                ? item.extras.filter((entry) => entry !== extra.value)
-                : [...item.extras, extra.value];
-              return (
-                <button
-                  key={extra.value}
-                  type="button"
-                  onClick={() => onUpdateItem({ extras: nextExtras })}
-                  className={cn(
-                    "rounded-full border px-4 py-2 text-xs font-semibold transition",
-                    isActive ? "border-ink bg-ink text-mist" : "border-dune bg-mist text-ink"
-                  )}
-                >
-                  {extra.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {RenderDynamicAttributesSection()}
         <Textarea
           label="Additional information"
           placeholder="Tell us anything else..."

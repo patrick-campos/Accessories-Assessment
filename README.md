@@ -57,6 +57,8 @@ Services:
 - Backend: `http://localhost:8080`
 - Frontend: `http://localhost:3000`
 - Postgres: `localhost:5432`
+- Swagger UI: `http://localhost:8080/swagger`
+- OpenAPI JSON: `http://localhost:8080/swagger/v1/swagger.json` (and `http://localhost:8080/openapi/v1.json`)
 
 ## Backend Architecture (Hexagonal)
 - **Controllers (Adapters/In)**: Thin, HTTP-only concerns.

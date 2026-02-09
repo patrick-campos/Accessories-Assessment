@@ -113,7 +113,7 @@ export function QuoteRequestView({
     <section className="min-h-screen w-screen">
       <MasterHeader />
       {successModal}
-      <ContentContainer>
+      <ContentContainer className="xl:min-h-[80.4vh]">
         <HeaderStep Items={schema.steps.map((item) => item.headerTitle)} CurrentIndexOfActiveItem={currentStep} />
         <TwoGridContainer className="w-full 2xl:w-[144rem] max-xl:m-auto">
           <ContainerStep className="space-y-6 lg:w-[60%] xl:[w-50%]">

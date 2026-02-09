@@ -1,4 +1,4 @@
-import type { ItemDetails } from "./quoteRequestTypes";
+import type { DynamicQuestion, ItemDetails } from "./quoteRequestTypes";
 import type { FormSchema } from "./schema";
 import { Button, MasterHeader, Modal } from "@/shared/ui";
 import { AuxiliarySections } from "./components/AuxiliarySections";
@@ -26,22 +26,8 @@ type Props = {
   submitState: "idle" | "sending" | "error" | "success";
   isUploading: boolean;
   showSuccessModal: boolean;
-  detailAttributes: Array<{
-    id: string;
-    name: string;
-    type: string;
-    isRequired: boolean;
-    displayOrder: number;
-    options: Array<{ id: string; label: string }>;
-  }>;
-  photoAttributes: Array<{
-    id: string;
-    name: string;
-    type: string;
-    isRequired: boolean;
-    displayOrder: number;
-    options: Array<{ id: string; label: string }>;
-  }>;
+  detailAttributes: DynamicQuestion[];
+  photoAttributes: DynamicQuestion[];
   onUpdateItem: (partial: Partial<ItemDetails>) => void;
   onUpdatePhoto: (slot: "front" | "back" | "bottom" | "interior", file: File | null) => void;
   onUpdateDynamicPhoto: (attributeId: string, file: File | null) => void;

@@ -2,7 +2,7 @@ import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { RestClient } from "@/shared/api";
 import { defaultSchema, type FormSchema } from "../schema";
-import type { ItemDetails } from "../quoteRequestTypes";
+import type { DynamicQuestion, ItemDetails } from "../quoteRequestTypes";
 import { normalizeSchema } from "../quoteRequestUtils";
 
 type ListResponse<T> = { items: T[] };
@@ -27,18 +27,6 @@ type AttributeDto = {
   options: AttributeOptionDto[];
   isRequired: boolean;
   businessModel: string;
-};
-
-export type ParsedAttribute = {
-  id: string;
-  name: string;
-  key: string;
-  stage: "item-details" | "item-photos" | "unknown";
-  field: string;
-  type: string;
-  isRequired: boolean;
-  displayOrder: number;
-  options: Array<{ id: string; label: string }>;
 };
 
 export function useQuoteRequestQueries(draftItem: ItemDetails) {
@@ -112,9 +100,9 @@ export function useQuoteRequestQueries(draftItem: ItemDetails) {
     enabled: Boolean(restClient && draftItem.category),
   });
 
-  const parsedAttributes = React.useMemo<ParsedAttribute[]>(() => {
+  const parsedAttributes = React.useMemo<DynamicQuestion[]>(() => {
     const attributes = attributesQuery.data?.items ?? [];
-    type ParsedStage = ParsedAttribute["stage"];
+    type ParsedStage = DynamicQuestion["stage"];
 
     function parseKey(value: string): { stage: ParsedStage; field: string; title: string } {
       const parts = value.split(":");

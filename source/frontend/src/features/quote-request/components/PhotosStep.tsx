@@ -1,22 +1,18 @@
 import { TitleText } from "@/shared/ui/Title";
 import * as React from "react";
-import type { ItemDetails } from "../quoteRequestTypes";
+import type { DynamicQuestion, ItemDetails } from "../quoteRequestTypes";
 import { cn } from "@/shared/lib/cn";
 import { DefaultText } from "@/shared/ui/DefaultText";
 import { IMGSelector } from "../../../shared/ui/ImgSelector";
 import { DynamicImagesSelect } from "@/shared/ui/DynamicImagesSelector";
+import { DynamicQuestion as DynamicQuestionField } from "./DynamicQuestion";
 
 type PhotosStepProps = {
   item: ItemDetails;
   showErrors: boolean;
   onUpdatePhoto: (slot: "front" | "back" | "bottom" | "interior", file: File | null) => void;
   onUpdateDynamicPhoto: (attributeId: string, file: File | null) => void;
-  dynamicAttributes: Array<{
-    id: string;
-    name: string;
-    isRequired: boolean;
-    displayOrder: number;
-  }>;
+  dynamicAttributes: DynamicQuestion[];
   onAddAdditionalPhoto: (file: File | null) => void;
   onRemoveAdditionalPhoto: (index: number) => void;
 };
@@ -210,7 +206,7 @@ function DynamicPhotoSlots({
   showErrors,
   onUpdateDynamicPhoto,
 }: {
-  attributes: Array<{ id: string; name: string; isRequired: boolean; displayOrder: number }>;
+  attributes: DynamicQuestion[];
   item: ItemDetails;
   showErrors: boolean;
   onUpdateDynamicPhoto: (attributeId: string, file: File | null) => void;
@@ -222,15 +218,13 @@ function DynamicPhotoSlots({
   return (
     <div className="grid gap-4 max-sm:grid-cols-2 lg:grid-cols-4 max-lg:grid-cols-3">
       {attributes.map((attribute) => {
-        const preview = item.dynamicPhotos[attribute.id]?.previewUrl ?? null;
-        const isMissing = showErrors && attribute.isRequired && !item.dynamicPhotos[attribute.id]?.fileId;
         return (
-          <PhotoSlotCard
+          <DynamicQuestionField
             key={attribute.id}
-            label={attribute.name}
-            preview={preview}
-            isMissing={isMissing}
-            onSelect={(file) => onUpdateDynamicPhoto(attribute.id, file)}
+            question={attribute}
+            showErrors={showErrors}
+            photo={item.dynamicPhotos[attribute.id]}
+            onFileChange={(file) => onUpdateDynamicPhoto(attribute.id, file)}
           />
         );
       })}

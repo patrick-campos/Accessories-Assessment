@@ -1,22 +1,14 @@
-import type { ItemDetails } from "../quoteRequestTypes";
+import type { DynamicQuestion, ItemDetails } from "../quoteRequestTypes";
 import type { FormSchema } from "../schema";
 import { Input, SelectSearchable, Textarea } from "@/shared/ui";
-import { cn } from "@/shared/lib/cn";
-import { DefaultText } from "@/shared/ui/DefaultText";
+import { DynamicQuestion as DynamicQuestionField } from "./DynamicQuestion";
 
 type DetailsStepProps = {
   schema: FormSchema;
   item: ItemDetails;
   showErrors: boolean;
   onUpdateItem: (partial: Partial<ItemDetails>) => void;
-  dynamicAttributes: Array<{
-    id: string;
-    name: string;
-    type: string;
-    isRequired: boolean;
-    displayOrder: number;
-    options: Array<{ id: string; label: string }>;
-  }>;
+  dynamicAttributes: DynamicQuestion[];
   onUpdateDynamicAttribute: (attributeId: string, values: string[]) => void;
 };
 
@@ -40,12 +32,12 @@ export function DetailsStep({
       <div className="space-y-6">
         {dynamicAttributes.map((attribute) => {
           return (
-            <DynamicAttributeField
+            <DynamicQuestionField
               key={attribute.id}
-              attribute={attribute}
-              item={item}
+              question={attribute}
               showErrors={showErrors}
-              onUpdateDynamicAttribute={onUpdateDynamicAttribute}
+              values={item.dynamicAttributes[attribute.id] ?? []}
+              onChange={(values) => onUpdateDynamicAttribute(attribute.id, values)}
             />
           );
         })}
@@ -100,105 +92,4 @@ export function DetailsStep({
       </div>
     </>
   );
-}
-
-function DynamicAttributeField({
-  attribute,
-  item,
-  showErrors,
-  onUpdateDynamicAttribute,
-}: {
-  attribute: {
-    id: string;
-    name: string;
-    type: string;
-    isRequired: boolean;
-    displayOrder: number;
-    options: Array<{ id: string; label: string }>;
-  };
-  item: ItemDetails;
-  showErrors: boolean;
-  onUpdateDynamicAttribute: (attributeId: string, values: string[]) => void;
-}) {
-  const currentValues = item.dynamicAttributes[attribute.id] ?? [];
-  const hasOptions = attribute.options.length > 0;
-  const normalizedType = attribute.type.toLowerCase();
-  const isMany = normalizedType === "manyof" || normalizedType === "anyof";
-  const shouldShowError = showErrors && attribute.isRequired && currentValues.length === 0;
-  const errorMessage = shouldShowError ? "Required" : undefined;
-
-  if (hasOptions && !isMany) {
-    return (
-      <SelectSearchable
-        label={attribute.name}
-        required={attribute.isRequired}
-        placeholder={`Select ${attribute.name}`}
-        options={attribute.options.map((option) => ({ value: option.id, label: option.label }))}
-        value={currentValues[0] ?? ""}
-        error={errorMessage}
-        onChange={(value) => onUpdateDynamicAttribute(attribute.id, MapSingleValue(value))}
-      />
-    );
-  }
-
-  if (hasOptions && isMany) {
-    return (
-      <div className="space-y-3">
-        <p className="text-sm font-semibold text-ink">{attribute.name}</p>
-        <div className="flex flex-wrap gap-3">
-          {attribute.options.map((option) => {
-            const isActive = currentValues.includes(option.id);
-            const nextValues = isActive
-              ? currentValues.filter((entry) => entry !== option.id)
-              : [...currentValues, option.id];
-            const className = ResolveChipClass(isActive);
-            return (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => onUpdateDynamicAttribute(attribute.id, nextValues)}
-                className={className}
-              >
-                {option.label}
-              </button>
-            );
-          })}
-        </div>
-        <DynamicError message={errorMessage} />
-      </div>
-    );
-  }
-
-  return (
-    <Input
-      label={attribute.name}
-      placeholder={`Enter ${attribute.name}`}
-      value={currentValues[0] ?? ""}
-      error={errorMessage}
-      onChange={(event) => onUpdateDynamicAttribute(attribute.id, MapSingleValue(event.target.value))}
-    />
-  );
-}
-
-function ResolveChipClass(isActive: boolean) {
-  if (isActive) {
-    return cn("rounded-full border px-4 py-2 text-xs font-semibold transition", "border-ink bg-ink text-mist");
-  }
-  return cn("rounded-full border px-4 py-2 text-xs font-semibold transition", "border-dune bg-mist text-ink");
-}
-
-function DynamicError({ message }: { message?: string }) {
-  if (!message) {
-    return <></>;
-  }
-  return (
-    <DefaultText className="text-rose text-[0.9rem]">{message}</DefaultText>
-  );
-}
-
-function MapSingleValue(value: string | undefined) {
-  if (!value) {
-    return [];
-  }
-  return [value];
 }

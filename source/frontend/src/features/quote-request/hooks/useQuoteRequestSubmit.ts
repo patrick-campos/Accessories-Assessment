@@ -1,7 +1,6 @@
 import * as React from "react";
 import { RestClient } from "@/shared/api";
-import type { ItemDetails, PhotoSlot, UserDetails } from "../quoteRequestTypes";
-import type { ParsedAttribute } from "./useQuoteRequestQueries";
+import type { DynamicQuestion, ItemDetails, PhotoSlot, UserDetails } from "../quoteRequestTypes";
 import { getPhotoSlots } from "../quoteRequestUtils";
 
 export function useQuoteRequestSubmit({
@@ -15,8 +14,8 @@ export function useQuoteRequestSubmit({
   setShowSuccessModal,
 }: {
   apiOrigin: string | null;
-  detailAttributes: ParsedAttribute[];
-  photoAttributes: ParsedAttribute[];
+  detailAttributes: DynamicQuestion[];
+  photoAttributes: DynamicQuestion[];
   items: ItemDetails[];
   draftItem: ItemDetails;
   user: UserDetails;

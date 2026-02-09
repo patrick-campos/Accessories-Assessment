@@ -52,7 +52,7 @@ export function IMGSelector({ IsMissing, Label, MiddleLabel, className, IMGRef, 
         const AdditionalStyle = label != undefined ? 'flex align-center justify-center text-center font-normal text-subtitle px-[1rem]': ''
 
         return (
-            <label className={cn("w-full h-full", AdditionalStyle)}>
+            <label className={cn("w-full h-full cursor-pointer", AdditionalStyle)}>
                 <span className="m-auto">{label}</span>
                 <input
                 type="file"

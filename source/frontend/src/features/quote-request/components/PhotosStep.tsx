@@ -1,6 +1,6 @@
 import { TitleText } from "@/shared/ui/Title";
 import * as React from "react";
-import type { ItemDetails } from "../QuoteRequestController";
+import type { ItemDetails } from "../quoteRequestTypes";
 import { cn } from "@/shared/lib/cn";
 import { DefaultText } from "@/shared/ui/DefaultText";
 import { IMGSelector } from "../../../shared/ui/ImgSelector";
@@ -10,6 +10,13 @@ type PhotosStepProps = {
   item: ItemDetails;
   showErrors: boolean;
   onUpdatePhoto: (slot: "front" | "back" | "bottom" | "interior", file: File | null) => void;
+  onUpdateDynamicPhoto: (attributeId: string, file: File | null) => void;
+  dynamicAttributes: Array<{
+    id: string;
+    name: string;
+    isRequired: boolean;
+    displayOrder: number;
+  }>;
   onAddAdditionalPhoto: (file: File | null) => void;
   onRemoveAdditionalPhoto: (index: number) => void;
 };
@@ -157,6 +164,8 @@ export function PhotosStep({
   item,
   showErrors,
   onUpdatePhoto,
+  onUpdateDynamicPhoto,
+  dynamicAttributes,
   onAddAdditionalPhoto,
   onRemoveAdditionalPhoto,
 }: PhotosStepProps) {
@@ -174,6 +183,12 @@ export function PhotosStep({
         <DefaultText className="mt-[1.2rem] text-secondaryTitle">You'll need to add photos of any wear and damage. Make sure to include any hardware,
           'made in' tags and serial numbers. You can add up to 16 photos â€“ the more you provide,
           the more accurate your quote.</DefaultText>
+        <DynamicPhotoSlots
+          attributes={dynamicAttributes}
+          item={item}
+          showErrors={showErrors}
+          onUpdateDynamicPhoto={onUpdateDynamicPhoto}
+        />
         <DynamicImagesSelect
           images={item.additionalPhotos}
           onAddImage={onAddAdditionalPhoto}
@@ -185,6 +200,40 @@ export function PhotosStep({
         <TitleText className="font-normal text-secondaryTitle font-bold">Important information</TitleText>
         <DefaultText className="text-secondaryTitle">We may be unable to accept your bag if the photos you provide don’t accurately represent it. If this happens, we'll return the bag to your collection address free of charge.</DefaultText>
       </div>
+    </div>
+  );
+}
+
+function DynamicPhotoSlots({
+  attributes,
+  item,
+  showErrors,
+  onUpdateDynamicPhoto,
+}: {
+  attributes: Array<{ id: string; name: string; isRequired: boolean; displayOrder: number }>;
+  item: ItemDetails;
+  showErrors: boolean;
+  onUpdateDynamicPhoto: (attributeId: string, file: File | null) => void;
+}) {
+  if (attributes.length === 0) {
+    return <></>;
+  }
+
+  return (
+    <div className="grid gap-4 max-sm:grid-cols-2 lg:grid-cols-4 max-lg:grid-cols-3">
+      {attributes.map((attribute) => {
+        const preview = item.dynamicPhotos[attribute.id]?.previewUrl ?? null;
+        const isMissing = showErrors && attribute.isRequired && !item.dynamicPhotos[attribute.id]?.fileId;
+        return (
+          <PhotoSlotCard
+            key={attribute.id}
+            label={attribute.name}
+            preview={preview}
+            isMissing={isMissing}
+            onSelect={(file) => onUpdateDynamicPhoto(attribute.id, file)}
+          />
+        );
+      })}
     </div>
   );
 }

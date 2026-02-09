@@ -1,5 +1,5 @@
 import { InformationSection } from "@/shared/ui/InformationSection";
-import type { ItemDetails } from "../QuoteRequestController";
+import type { ItemDetails } from "../quoteRequestTypes";
 import type { FormSchema } from "../schema";
 import { VerticalTableHeader } from "@/shared/ui/VerticalTableHeader";
 
@@ -44,8 +44,6 @@ export function ReviewStep({
       Category: resolveLabel(schema.options.categories, item.category),
       Brand: resolveLabel(schema.options.brands, item.brand),
       Model: item.model,
-      Size: resolveLabel(schema.options.sizes, item.size),
-      Codition: resolveLabel(schema.options.conditions, item.condition),
       "Additional Information": item.additionalInfo,
     };
   }

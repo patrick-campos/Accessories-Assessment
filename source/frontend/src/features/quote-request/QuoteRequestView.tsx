@@ -1,4 +1,4 @@
-import type { ItemDetails } from "./QuoteRequestController";
+import type { ItemDetails } from "./quoteRequestTypes";
 import type { FormSchema } from "./schema";
 import { Button, MasterHeader, Modal } from "@/shared/ui";
 import { AuxiliarySections } from "./components/AuxiliarySections";
@@ -26,8 +26,26 @@ type Props = {
   submitState: "idle" | "sending" | "error" | "success";
   isUploading: boolean;
   showSuccessModal: boolean;
+  detailAttributes: Array<{
+    id: string;
+    name: string;
+    type: string;
+    isRequired: boolean;
+    displayOrder: number;
+    options: Array<{ id: string; label: string }>;
+  }>;
+  photoAttributes: Array<{
+    id: string;
+    name: string;
+    type: string;
+    isRequired: boolean;
+    displayOrder: number;
+    options: Array<{ id: string; label: string }>;
+  }>;
   onUpdateItem: (partial: Partial<ItemDetails>) => void;
   onUpdatePhoto: (slot: "front" | "back" | "bottom" | "interior", file: File | null) => void;
+  onUpdateDynamicPhoto: (attributeId: string, file: File | null) => void;
+  onUpdateDynamicAttribute: (attributeId: string, values: string[]) => void;
   onAddAdditionalPhoto: (file: File | null) => void;
   onRemoveAdditionalPhoto: (index: number) => void;
   onUpdateUser: (user: { firstName: string; lastName: string; email: string }) => void;
@@ -53,8 +71,12 @@ export function QuoteRequestView({
   submitState,
   isUploading,
   showSuccessModal,
+  detailAttributes,
+  photoAttributes,
   onUpdateItem,
   onUpdatePhoto,
+  onUpdateDynamicPhoto,
+  onUpdateDynamicAttribute,
   onAddAdditionalPhoto,
   onRemoveAdditionalPhoto,
   onUpdateUser,
@@ -100,6 +122,8 @@ export function QuoteRequestView({
         item={currentItem}
         showErrors={showErrors}
         onUpdateItem={onUpdateItem}
+        dynamicAttributes={detailAttributes}
+        onUpdateDynamicAttribute={onUpdateDynamicAttribute}
       />
     ),
     1: (
@@ -107,6 +131,8 @@ export function QuoteRequestView({
         item={currentItem}
         showErrors={showErrors}
         onUpdatePhoto={onUpdatePhoto}
+        dynamicAttributes={photoAttributes}
+        onUpdateDynamicPhoto={onUpdateDynamicPhoto}
         onAddAdditionalPhoto={onAddAdditionalPhoto}
         onRemoveAdditionalPhoto={onRemoveAdditionalPhoto}
       />

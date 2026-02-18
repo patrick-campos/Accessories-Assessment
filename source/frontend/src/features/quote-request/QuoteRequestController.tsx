@@ -21,12 +21,14 @@ export function QuoteRequestController() {
   const [submitState, setSubmitState] = React.useState<"idle" | "sending" | "error" | "success">(
     "idle"
   );
+  const [apiError, setApiError] = React.useState<string | null>(null);
   const [showErrors, setShowErrors] = React.useState(false);
   const [showSuccessModal, setShowSuccessModal] = React.useState(false);
 
   const clearValidationErrors = React.useCallback(() => setShowErrors(false), []);
   const showValidationErrors = React.useCallback(() => setShowErrors(true), []);
   const closeSuccessModal = React.useCallback(() => setShowSuccessModal(false), []);
+  const clearApiError = React.useCallback(() => setApiError(null), []);
 
   const { apiOrigin, schema, detailAttributes, photoAttributes, isLoading, error } =
     useQuoteRequestQueries(draftItem);
@@ -46,6 +48,7 @@ export function QuoteRequestController() {
     user,
     setSubmitState,
     setShowSuccessModal,
+    setErrorMessage: setApiError,
   });
 
   const updateItem = React.useCallback(
@@ -202,7 +205,7 @@ export function QuoteRequestController() {
     <QuoteRequestView
       schema={schema}
       isLoading={isLoading}
-      error={error ? "Falha ao carregar o formulario" : null}
+      error={apiError ?? (error ? "Falha ao carregar o formulario" : null)}
       currentStep={currentStep}
       showErrors={showErrors}
       currentItem={draftItem}
@@ -226,6 +229,7 @@ export function QuoteRequestController() {
       onEditItem={handleEditItem}
       onEditPhotos={handleEditItemPhotos}
       onCloseSuccessModal={closeSuccessModal}
+      onClearError={clearApiError}
       onRequestAnotherQuote={handleRequestAnotherQuote}
       onMyQuotes={handleMyQuotes}
     />

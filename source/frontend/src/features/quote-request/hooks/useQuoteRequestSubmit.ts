@@ -12,6 +12,7 @@ export function useQuoteRequestSubmit({
   user,
   setSubmitState,
   setShowSuccessModal,
+  setErrorMessage,
 }: {
   apiOrigin: string | null;
   detailAttributes: DynamicQuestion[];
@@ -21,6 +22,7 @@ export function useQuoteRequestSubmit({
   user: UserDetails;
   setSubmitState: React.Dispatch<React.SetStateAction<"idle" | "sending" | "error" | "success">>;
   setShowSuccessModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
   const photoSlots = React.useMemo(() => getPhotoSlots(), []);
 
@@ -31,11 +33,10 @@ export function useQuoteRequestSubmit({
       return;
     }
     setSubmitState("sending");
+    setErrorMessage(null);
     try {
       const endpointUrl = new URL(endpoint);
-      const requestOrigin = endpointUrl.origin;
-      const requestPath = endpointUrl.pathname + endpointUrl.search;
-      const client = new RestClient(requestOrigin);
+      const requestUrl = endpointUrl.toString();
 
       const countryOfOrigin = items[0]?.country ?? draftItem.country;
       if (!countryOfOrigin) {
@@ -89,31 +90,49 @@ export function useQuoteRequestSubmit({
       const buildAdditionalPhotoFiles = (item: ItemDetails) =>
         item.additionalPhotos.map((photo) => filePayload(photo.fileId, "Additional"));
 
-      await client.post(requestPath, {
-        countryOfOrigin,
-        customerInformation: {
-          externalSellerTier: null,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-        },
-        items: items.map((item) => ({
-          attributes: buildAttributes(item),
-          categoryId: item.category,
-          brandId: item.brand,
-          model: item.model,
-          description: item.additionalInfo,
-          files: [
-            ...buildFixedPhotoFiles(item),
-            ...buildDynamicPhotoFiles(item),
-            ...buildAdditionalPhotoFiles(item),
-          ],
-        })),
+      const response = await fetch(requestUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          countryOfOrigin,
+          customerInformation: {
+            externalSellerTier: null,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+          },
+          items: items.map((item) => ({
+            attributes: buildAttributes(item),
+            categoryId: item.category,
+            brandId: item.brand,
+            model: item.model,
+            description: item.additionalInfo,
+            files: [
+              ...buildFixedPhotoFiles(item),
+              ...buildDynamicPhotoFiles(item),
+              ...buildAdditionalPhotoFiles(item),
+            ],
+          })),
+        }),
       });
+      if (!response.ok) {
+        let message = `Request failed: ${response.status}`;
+        try {
+          const data = await response.json();
+          if (data && typeof data === "object") {
+            message = data.detail || data.message || data.title || message;
+          }
+        } catch {
+          // ignore json parse errors
+        }
+        throw new Error(message);
+      }
       setSubmitState("success");
       setShowSuccessModal(true);
     } catch (error) {
       setSubmitState("error");
+      const message = error instanceof Error ? error.message : "Unexpected error";
+      setErrorMessage(message);
     }
   }, [
     apiOrigin,
@@ -122,6 +141,7 @@ export function useQuoteRequestSubmit({
     photoSlots,
     detailAttributes,
     photoAttributes,
+    setErrorMessage,
     setShowSuccessModal,
     setSubmitState,
     user.email,
